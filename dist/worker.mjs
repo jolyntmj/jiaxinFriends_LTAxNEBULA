@@ -2,11 +2,7 @@ import { solve } from "./solver.mjs";
 
 self.onmessage = (event) => {
   try {
-    const {
-      data,
-      options = {},
-      baselines = {},
-    } = event.data;
+    const { data } = event.data;
 
     const scenarios = [
       "A",
@@ -20,15 +16,7 @@ self.onmessage = (event) => {
         scenario,
       });
 
-      const result = solve(
-        data,
-        scenario,
-        {
-          ...options,
-          baseline:
-            baselines[scenario],
-        },
-      );
+      const result = solve(data, scenario);
 
       self.postMessage({
         type: "result",

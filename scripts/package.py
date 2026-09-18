@@ -1,60 +1,13 @@
 from pathlib import Path
 from zipfile import ZipFile, ZIP_DEFLATED
 import io
-
-
-# Locate the main project folder.
-root = Path(__file__).resolve().parents[1]
-
-# Location where the source ZIP will be created.
-source = root / "dist" / "TrackPlan_Source.zip"
-
-
-# Create the source-code ZIP archive.
-with ZipFile(
-    source,
-    mode="w",
-    compression=ZIP_DEFLATED,
-) as archive:
-
-    folders = [
-        "dist",
-        "scripts",
-        "docs",
-        "results",
-    ]
-
-    for folder in folders:
-        folder_path = root / folder
-
-        for path in sorted(
-            folder_path.rglob("*"),
-        ):
-            should_include = (
-                path.is_file()
-                and path != source
-                and "__pycache__"
-                not in str(path)
-            )
-
-            if should_include:
-                archive.write(
-                    path,
-                    path.relative_to(root),
-                )
-
-    # Add the main README file.
-    archive.write(
-        root / "README.md",
-        "README.md",
-    )
-
-
-# Verify that the created ZIP is not corrupted.
+root=Path(__file__).resolve().parents[1]
+source=root/'dist/TrackPlan_Source.zip'
+with ZipFile(source,'w',ZIP_DEFLATED) as z:
+ for folder in ['dist','scripts','docs','results']:
+  for p in sorted((root/folder).rglob('*')):
+   if p.is_file() and p!=source and '__pycache__' not in str(p):z.write(p,p.relative_to(root))
+ z.write(root/'README.md','README.md')
 for target in [source]:
-    with ZipFile(target) as archive:
-        assert archive.testzip() is None
-
-
-# Display the location of the finished ZIP.
+ with ZipFile(target) as z:assert z.testzip() is None
 print(source)

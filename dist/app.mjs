@@ -23,10 +23,6 @@ let scenario = "A";
 let view = "timeline";
 let busy = false;
 let worker = null;
-let baselineResults = {};
-let experimentalResults = {};
-let mode = "baseline";
-let experiment = null;
 
 const titles = {
   A: "Strict supply",
@@ -53,7 +49,7 @@ function message(s, error = false) {
 function setBusy(v) {
   busy = v;
 
-  for (const id of ["run", "example", "files"]) {
+  for (const id of ["run", "files"]) {
     $(id).disabled = v || (id === "run" && !data);
   }
 
@@ -72,10 +68,6 @@ function loaded(d, name) {
 
   data = d;
   results = {};
-  baselineResults = {};
-  experimentalResults = {};
-  mode = "baseline";
-  experiment = null;
 
   $("inspector").hidden = true;
 
@@ -96,20 +88,6 @@ function loaded(d, name) {
   render();
   setBusy(false);
 }
-
-$("example").onclick = async () => {
-  try {
-    const response = await fetch("example.json");
-    const exampleData = await response.json();
-
-    loaded(
-      exampleData,
-      "Supplied planning instance",
-    );
-  } catch (e) {
-    message(e.message, true);
-  }
-};
 
 $("files").onchange = async (e) => {
   try {
@@ -142,22 +120,12 @@ $("files").onchange = async (e) => {
   }
 };
 
-function generate(isExperiment = false) {
+function generate() {
   if (!data || busy) {
     return;
   }
 
-  if (!isExperiment) {
-    baselineResults = {};
-    experimentalResults = {};
-    experiment = null;
-    mode = "baseline";
-    results = baselineResults;
-  } else {
-    experimentalResults = {};
-    results = experimentalResults;
-    mode = "experiment";
-  }
+  results = {};
 
   $("inspector").hidden = true;
 
@@ -173,11 +141,7 @@ function generate(isExperiment = false) {
 
     if (x.type === "progress") {
       message(
-        (
-          isExperiment
-            ? "Re-planning experiment"
-            : "Scheduling baseline"
-        ) +
+        "Scheduling" +
           " " +
           x.scenario +
           " — comparing constraints and placements…",
@@ -202,9 +166,7 @@ function generate(isExperiment = false) {
 
       message(
         all
-          ? isExperiment
-            ? "What-if complete. Compare the changes below; your submission baseline is preserved."
-            : "Baseline schedules pass the implemented checks. You can now run a what-if comparison."
+          ? "Schedules pass the implemented checks and are ready to inspect or export."
           : "Some candidates fail checks. Review diagnostics; failing schedules cannot be exported.",
         !all,
       );
@@ -234,16 +196,10 @@ function generate(isExperiment = false) {
     );
   };
 
-  worker.postMessage({
-    data,
-    options: isExperiment ? experiment : {},
-    baselines: isExperiment
-      ? baselineResults
-      : {},
-  });
+  worker.postMessage({ data });
 }
 
-$("run").onclick = () => generate(false);
+$("run").onclick = generate;
 
 document
   .querySelectorAll("[data-scenario]")
@@ -303,27 +259,10 @@ function exportZip(all) {
     }
   }
 
-  if (mode === "experiment") {
-    files["EXPERIMENT_README.json"] =
-      JSON.stringify(
-        {
-          label:
-            "WHAT-IF ONLY — not the original submission baseline",
-          changes: experiment,
-        },
-        null,
-        2,
-      );
-  }
-
   const filename =
-    mode === "experiment"
-      ? all
-        ? "WhatIf_ABC.zip"
-        : "WhatIf_" + scenario + ".zip"
-      : all
-        ? "PS1_Results_ABC.zip"
-        : "Scenario_" + scenario + ".zip";
+    all
+      ? "PS1_Results_ABC.zip"
+      : "Scenario_" + scenario + ".zip";
 
   download(
     filename,
@@ -398,9 +337,7 @@ function render() {
   enhancements.render();
 
   $("export-all").textContent =
-    mode === "experiment"
-      ? "Download experiment ↓"
-      : "Download all scenarios ↓";
+    "Download all scenarios ↓";
 
   document
     .querySelectorAll("[data-scenario]")
@@ -1346,12 +1283,6 @@ const enhancements =
     state: () => ({
       data,
       results,
-      baseline:
-        baselineResults,
-      experimental:
-        experimentalResults,
-      mode,
-      experiment,
       scenario,
       busy,
     }),
@@ -1363,60 +1294,6 @@ const enhancements =
     selectScenario: (selected) => {
       scenario = selected;
       $("inspector").hidden = true;
-      render();
-    },
-
-    experiment: (
-      experimentConfiguration,
-    ) => {
-      if (busy) {
-        return;
-      }
-
-      prepare(
-        data,
-        experimentConfiguration,
-      );
-
-      experiment = structuredClone(
-        experimentConfiguration,
-      );
-
-      $("experiment-error").textContent =
-        "";
-
-      generate(true);
-    },
-
-    reset: () => {
-      if (busy) {
-        return;
-      }
-
-      mode = "baseline";
-      results = baselineResults;
-      experimentalResults = {};
-      experiment = null;
-
-      $("inspector").hidden = true;
-
-      render();
-    },
-
-    showMode: (selectedMode) => {
-      if (busy) {
-        return;
-      }
-
-      mode = selectedMode;
-
-      results =
-        selectedMode === "baseline"
-          ? baselineResults
-          : experimentalResults;
-
-      $("inspector").hidden = true;
-
       render();
     },
   });

@@ -10,7 +10,7 @@ Use a current desktop browser. From the source directory:
 python -m http.server 8000 --directory dist
 ```
 
-Open http://localhost:8000, select **Load supplied dataset**, then **Generate schedules**. For another instance select its eight CSV files together; uploaded copy suffixes such as `(1)` are accepted. The scheduler runs in a Web Worker. Files remain in the browser. Results are session-only; export before refreshing.
+Open http://localhost:8000, select **Upload dataset**, choose all eight CSV files for one planning instance, then select **Generate schedules**. Uploaded copy suffixes such as `(1)` are accepted. The scheduler runs in a Web Worker. Files remain in the browser. Results are session-only; export before refreshing.
 
 ## Reproduce the result files
 
@@ -65,16 +65,6 @@ The reference validator was not supplied. Its exact treatment of possession grou
 
 The source is ready to upload to a GitLab project; no GitLab repository has been created through this session. Record the actual app walkthrough, upload it to YouTube, and supply its URL. Verify that judges can open the hosted app without your owner session. See `docs/SUBMISSION_CHECKLIST.md`.
 
-## Decision support and what-if experiments
+## Decision support
 
-Generate the baseline first, then open **What-if lab**. Reduce a selected location's weekly quota for an inclusive week range and/or change an activity's earliest start week. Run the comparison to calculate A/B/C against the modified inputs. The original data and baseline results remain separate. Baseline and Experiment buttons switch between results; Reset discards the experiment. This is full-horizon planning, not a live freeze of completed work.
-
-Activity details now contain generic recovery suggestions based on workload, start week, predecessor completion and the one-access-per-week rule. An earlier-start suggestion stages a hypothetical input change; it does not edit the baseline or promise feasibility. ECLO calculations are isolated-workload lower bounds, not an approved possession plan.
-
-The comparison shows penalty, delay, extra slots, ECLO and the activities whose weeks or ECLO settings changed. The solver revalidates the old schedule against modified inputs and tries normal and preservation-oriented orderings. Feasibility and the official penalty are compared first; changed activity count breaks ties. There is no minimum-churn guarantee, and possession-group/night-index renumbering is excluded from this change count.
-
-The capacity table has clickable locations revealing possession groups and activities. The controller briefing summarises the selected plan and approval-dependent decisions and can be downloaded as text. What-if ZIPs have distinct names and a change manifest; they are not submission-baseline files.
-
-A capacity quota of zero is not a full physical safety closure: B/C retain their policy allowances for extra access. The app states this explicitly. Experiments support reduced quotas only, known locations and weeks 1–520. Scenario rules remain fixed.
-
-Regression examples: setting SEC:BET:S14_H01:EB supply to zero in W22–24 gives A=52.5, B=51, C=46.2. A changes four activities; B/C retain their weeks but incur additional access costs. Moving A036's start to W20 gives Scenario A=7 and an on-time A036 finish at W26. Baseline CSVs remain unchanged (A=25.2, B=30, C=25.2). These are implemented-rule results, not official judge validation.
+The capacity table has clickable locations revealing possession groups and activities. Activity details explain timing, workload, predecessor constraints and ECLO implications. The controller briefing summarises each selected scenario and its approval-dependent decisions and can be downloaded as text.
