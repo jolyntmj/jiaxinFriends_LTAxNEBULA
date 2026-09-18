@@ -10,7 +10,7 @@ Record the actual hosted application in a desktop browser. This is a script, not
 
 ## 0:20–0:45 — Real input and generation
 
-[Click Upload 8 CSVs, select the eight instance files, then Generate schedules.]
+[Click Upload dataset, select all eight CSV files for one planning instance, then Generate schedules.]
 
 “This is a live scheduler. It reads the network, available access, buffer rules, contract limits and activity demand. Judges can upload a new instance using these same eight CSV schemas. The supplied instance has 54 activities across 14 contracts.”
 

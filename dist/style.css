@@ -837,82 +837,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,su
 
 }
 
-.mode-strip {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:16px;
-  background:#e8f4ef;
-  border:1px solid #bedccd;
-  border-radius:8px;
-  padding:16px 20px;
-  margin:0 0 12px
-}
-
-.mode-strip strong {
-  font-size:12px;
-  letter-spacing:1.3px;
-  color:#136d55
-}
-
-.mode-strip p {
-  font-size:14px;
-  color:#426655;
-  margin:5px 0 0
-}
-
-.mode-strip.experiment-mode {
-  background:#fff5e5;
-  border-color:#e7c78c
-}
-
-.experiment-mode strong,.experiment-mode p {
-  color:#775019
-}
-
-.experiment-panel {
-  margin:0 0 24px;
-  background:white
-}
-
-.experiment-panel summary {
-  font-size:16px
-}
-
-.experiment-fields {
-  display:grid;
-  grid-template-columns:minmax(220px,2fr) repeat(3,minmax(100px,1fr));
-  gap:14px;
-  margin:20px 0 12px;
-  align-items:end
-}
-
-.experiment-fields label {
-  font-size:14px;
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  color:#465f72
-}
-
-.experiment-fields input,.experiment-fields select {
-  max-width:none;
-  width:100%
-}
-
-.start-fields {
-  grid-template-columns:2fr 1fr 2fr
-}
-
-.experiment-fields button {
-  align-self:end
-}
-
-#experiment-error {
-  color:#a13825
-}
-
-.briefing,.comparison-panel {
+.briefing {
   padding:22px;
   background:white;
   border:1px solid var(--line);
@@ -944,15 +869,6 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,su
   padding:14px;
   background:#f1f6f9;
   border-radius:6px
-}
-
-.comparison-panel p {
-  font-size:14px;
-  margin:12px 0 16px
-}
-
-.comparison-panel th {
-  position:static
 }
 
 .recommendations {
@@ -998,65 +914,25 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,su
   font-size:14px
 }
 
-.comparison-panel td {
-  white-space:normal;
-  min-width:100px;
-  line-height:1.7
-}
-
 .table-button {
   white-space:normal;
   text-align:left
 }
 
-#comparison-panel[hidden] {
-  display:none
-}
-
 @media(max-width:900px) {
-  .mode-strip {
-    align-items:flex-start;
-    flex-direction:column
-  }
-
-  .experiment-fields {
-    grid-template-columns:1fr 1fr
-  }
-
-  .experiment-fields label:first-child {
-    grid-column:1/-1
-  }
-
   .brief-options {
     grid-template-columns:1fr
-  }
-
-  .start-fields button {
-    grid-column:1/-1
   }
 
 }
 
 @media(max-width:550px) {
-  .experiment-fields {
-    grid-template-columns:1fr
-  }
-
-  .experiment-fields label:first-child {
-    grid-column:auto
-  }
-
-  .briefing,.comparison-panel {
+  .briefing {
     padding:17px
   }
 
   .inspector-top {
     flex-wrap:wrap
-  }
-
-  .mode-strip .actions button {
-    font-size:13px;
-    padding:8px 10px
   }
 
 }

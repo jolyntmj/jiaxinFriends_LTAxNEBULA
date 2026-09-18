@@ -71,17 +71,13 @@
           <h2>Planning instance</h2>
 
           <p id="instance-status">
-            Load the supplied dataset or upload eight instance CSVs.
+            Upload all 8 CSV files that make up one planning instance.
           </p>
         </div>
 
         <div class="actions">
-          <button id="example">
-            Load supplied dataset
-          </button>
-
           <label class="upload">
-            Upload 8 CSVs
+            Upload dataset
 
             <input
               id="files"
@@ -99,6 +95,10 @@
             Generate schedules →
           </button>
         </div>
+
+        <p class="muted">
+          Select all 8 required CSV files together.
+        </p>
       </section>
 
       <div
@@ -106,161 +106,8 @@
         role="status"
         aria-live="polite"
       >
-        The supplied instance contains 14 contracts,
-        54 activities and 76 locations.
+        Upload the 8 CSV files for one planning instance to begin.
       </div>
-
-      <section
-        id="mode-strip"
-        class="mode-strip"
-      >
-        <div>
-          <strong id="planning-mode">
-            SUBMISSION BASELINE
-          </strong>
-
-          <p id="applied-changes">
-            Baseline inputs are preserved.
-            Experiments are separate and can be reset.
-          </p>
-        </div>
-
-        <div class="actions">
-          <button
-            id="show-baseline"
-            class="primary"
-          >
-            Baseline
-          </button>
-
-          <button
-            id="show-experiment"
-            disabled
-          >
-            Experiment
-          </button>
-
-          <button
-            id="reset-baseline"
-            disabled
-          >
-            Reset experiment
-          </button>
-        </div>
-      </section>
-
-      <details
-        id="experiment-panel"
-        class="experiment-panel"
-      >
-        <summary>
-          What-if lab · Disrupt access or test an earlier start
-        </summary>
-
-        <p>
-          Apply a hypothetical change, then compare all three policies
-          against the unchanged baseline. Capacity reductions affect the
-          selected location only. This is a planning re-run, not a
-          frozen-past operational re-plan.
-        </p>
-
-        <div class="experiment-fields">
-          <label>
-            Location
-
-            <select id="disruption-location">
-              <option value="">
-                No capacity change
-              </option>
-            </select>
-          </label>
-
-          <label>
-            From week
-
-            <input
-              id="disruption-from"
-              type="number"
-              min="1"
-              max="520"
-              value="22"
-            >
-          </label>
-
-          <label>
-            To week
-
-            <input
-              id="disruption-to"
-              type="number"
-              min="1"
-              max="520"
-              value="23"
-            >
-          </label>
-
-          <label>
-            Revised weekly supply
-
-            <input
-              id="disruption-capacity"
-              type="number"
-              min="0"
-              value="1"
-            >
-          </label>
-        </div>
-
-        <p
-          id="capacity-hint"
-          class="muted"
-        >
-          Leave blank to test only an activity start change.
-        </p>
-
-        <div class="experiment-fields start-fields">
-          <label>
-            Activity start change
-
-            <select id="start-activity">
-              <option value="">
-                No start-date change
-              </option>
-            </select>
-          </label>
-
-          <label>
-            New earliest week
-
-            <input
-              id="start-week"
-              type="number"
-              min="1"
-              max="520"
-              value="20"
-            >
-          </label>
-
-          <button
-            id="replan"
-            class="primary"
-            disabled
-          >
-            Run what-if comparison →
-          </button>
-        </div>
-
-        <p
-          id="experiment-error"
-          role="alert"
-        ></p>
-
-        <p class="muted">
-          Earlier starts require approval in reality. A reduction to zero
-          removes nominal access; B/C can still purchase their permitted
-          extra access. It is not a hard safety closure.
-        </p>
-      </details>
 
       <section
         class="scenario-grid"
@@ -393,20 +240,6 @@
         </div>
 
         <div id="brief-content"></div>
-      </section>
-
-      <section
-        id="comparison-panel"
-        class="comparison-panel"
-        hidden
-      >
-        <h2>Before & after · Same scenario</h2>
-
-        <div id="comparison-summary"></div>
-
-        <h3>Changed activities</h3>
-
-        <div id="changes-table"></div>
       </section>
 
       <nav
