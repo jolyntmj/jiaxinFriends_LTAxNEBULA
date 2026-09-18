@@ -1,0 +1,1255 @@
+{
+  "feasible": true,
+  "hard_violations": [],
+  "complete": 54,
+  "total": 54,
+  "work_units": 192,
+  "required_units": 192,
+  "excess_access_nights_total": 0,
+  "eclo_nights_total": 6,
+  "priority_weighted_score": 0,
+  "objective_score": 30,
+  "overrun_days_total": 0,
+  "contracts_overrunning": 0,
+  "hotspots": [
+    {
+      "week": 2,
+      "location": "PLAT:ALP:H01:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 2,
+      "location": "SEC:ALP:H01_H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 2,
+      "location": "PLAT:ALP:H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 2,
+      "location": "PLAT:BET:H01:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 2,
+      "location": "SEC:BET:H01_H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 2,
+      "location": "PLAT:BET:H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 3,
+      "location": "PLAT:ALP:H01:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 3,
+      "location": "SEC:ALP:H01_H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 3,
+      "location": "PLAT:ALP:H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 3,
+      "location": "PLAT:BET:H01:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 3,
+      "location": "SEC:BET:H01_H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 3,
+      "location": "PLAT:BET:H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 4,
+      "location": "PLAT:BET:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 4,
+      "location": "SEC:BET:H01_H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 4,
+      "location": "PLAT:BET:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 4,
+      "location": "PLAT:ALP:H01:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 4,
+      "location": "SEC:ALP:H01_H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 4,
+      "location": "PLAT:ALP:H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 4,
+      "location": "PLAT:BET:H01:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 4,
+      "location": "SEC:BET:H01_H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 4,
+      "location": "PLAT:BET:H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 5,
+      "location": "PLAT:BET:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 5,
+      "location": "SEC:BET:H01_H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 5,
+      "location": "PLAT:BET:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 5,
+      "location": "PLAT:ALP:H01:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 5,
+      "location": "SEC:ALP:H01_H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 5,
+      "location": "PLAT:ALP:H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 5,
+      "location": "PLAT:BET:H01:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 5,
+      "location": "SEC:BET:H01_H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 5,
+      "location": "PLAT:BET:H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 6,
+      "location": "PLAT:BET:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 6,
+      "location": "SEC:BET:H01_H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 6,
+      "location": "PLAT:BET:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 6,
+      "location": "PLAT:ALP:H01:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 6,
+      "location": "SEC:ALP:H01_H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 6,
+      "location": "PLAT:ALP:H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 6,
+      "location": "PLAT:BET:H01:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 6,
+      "location": "SEC:BET:H01_H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 6,
+      "location": "PLAT:BET:H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 7,
+      "location": "PLAT:BET:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 7,
+      "location": "SEC:BET:H01_H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 7,
+      "location": "PLAT:BET:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 7,
+      "location": "PLAT:ALP:H01:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 7,
+      "location": "SEC:ALP:H01_H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 7,
+      "location": "PLAT:ALP:H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 7,
+      "location": "PLAT:BET:H01:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 7,
+      "location": "SEC:BET:H01_H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 7,
+      "location": "PLAT:BET:H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 8,
+      "location": "PLAT:BET:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 8,
+      "location": "SEC:BET:H01_H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 8,
+      "location": "PLAT:BET:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 8,
+      "location": "PLAT:BET:S15:EB",
+      "used": 2,
+      "capacity": 2,
+      "excess": 0
+    },
+    {
+      "week": 8,
+      "location": "PLAT:ALP:H01:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 8,
+      "location": "SEC:ALP:H01_H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 8,
+      "location": "PLAT:ALP:H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 8,
+      "location": "PLAT:BET:H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 9,
+      "location": "PLAT:ALP:S03:EB",
+      "used": 2,
+      "capacity": 2,
+      "excess": 0
+    },
+    {
+      "week": 9,
+      "location": "PLAT:ALP:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 9,
+      "location": "PLAT:BET:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 9,
+      "location": "SEC:BET:H01_H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 9,
+      "location": "PLAT:BET:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 9,
+      "location": "PLAT:BET:S15:EB",
+      "used": 2,
+      "capacity": 2,
+      "excess": 0
+    },
+    {
+      "week": 9,
+      "location": "PLAT:BET:H01:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 9,
+      "location": "SEC:BET:H01_H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 9,
+      "location": "PLAT:BET:H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 9,
+      "location": "PLAT:ALP:H01:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 9,
+      "location": "SEC:ALP:H01_H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 9,
+      "location": "PLAT:ALP:H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 10,
+      "location": "PLAT:ALP:S03:EB",
+      "used": 2,
+      "capacity": 2,
+      "excess": 0
+    },
+    {
+      "week": 10,
+      "location": "PLAT:ALP:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 10,
+      "location": "PLAT:BET:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 10,
+      "location": "SEC:BET:H01_H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 10,
+      "location": "PLAT:BET:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 10,
+      "location": "PLAT:ALP:H01:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 10,
+      "location": "SEC:ALP:H01_H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 10,
+      "location": "PLAT:ALP:H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 10,
+      "location": "PLAT:BET:H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 11,
+      "location": "PLAT:BET:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 11,
+      "location": "SEC:BET:H01_H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 11,
+      "location": "PLAT:BET:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 11,
+      "location": "PLAT:ALP:H01:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 11,
+      "location": "PLAT:BET:S17:EB",
+      "used": 2,
+      "capacity": 2,
+      "excess": 0
+    },
+    {
+      "week": 11,
+      "location": "PLAT:BET:H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 12,
+      "location": "PLAT:BET:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 12,
+      "location": "SEC:BET:H01_H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 12,
+      "location": "PLAT:BET:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 12,
+      "location": "PLAT:ALP:H01:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 12,
+      "location": "PLAT:BET:S17:EB",
+      "used": 2,
+      "capacity": 2,
+      "excess": 0
+    },
+    {
+      "week": 12,
+      "location": "PLAT:BET:H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 13,
+      "location": "PLAT:BET:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 13,
+      "location": "PLAT:BET:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 13,
+      "location": "SEC:BET:H01_H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 13,
+      "location": "PLAT:ALP:H01:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 13,
+      "location": "SEC:ALP:H01_H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 13,
+      "location": "PLAT:ALP:H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 13,
+      "location": "PLAT:ALP:S05:WB",
+      "used": 2,
+      "capacity": 2,
+      "excess": 0
+    },
+    {
+      "week": 13,
+      "location": "PLAT:ALP:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 14,
+      "location": "PLAT:BET:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 14,
+      "location": "PLAT:BET:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 14,
+      "location": "SEC:BET:H01_H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 14,
+      "location": "PLAT:ALP:H01:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 14,
+      "location": "SEC:ALP:H01_H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 14,
+      "location": "PLAT:ALP:H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 14,
+      "location": "PLAT:ALP:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 15,
+      "location": "PLAT:BET:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 15,
+      "location": "PLAT:BET:S15:EB",
+      "used": 2,
+      "capacity": 2,
+      "excess": 0
+    },
+    {
+      "week": 15,
+      "location": "PLAT:BET:S16:EB",
+      "used": 2,
+      "capacity": 2,
+      "excess": 0
+    },
+    {
+      "week": 15,
+      "location": "PLAT:BET:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 15,
+      "location": "SEC:BET:H01_H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 15,
+      "location": "PLAT:ALP:H01:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 16,
+      "location": "PLAT:BET:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 16,
+      "location": "SEC:BET:H01_H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 16,
+      "location": "PLAT:BET:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 16,
+      "location": "PLAT:ALP:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 16,
+      "location": "PLAT:BET:S15:EB",
+      "used": 2,
+      "capacity": 2,
+      "excess": 0
+    },
+    {
+      "week": 16,
+      "location": "PLAT:BET:S16:EB",
+      "used": 2,
+      "capacity": 2,
+      "excess": 0
+    },
+    {
+      "week": 16,
+      "location": "PLAT:BET:S17:EB",
+      "used": 2,
+      "capacity": 2,
+      "excess": 0
+    },
+    {
+      "week": 17,
+      "location": "PLAT:BET:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 17,
+      "location": "SEC:BET:H01_H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 17,
+      "location": "PLAT:BET:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 17,
+      "location": "PLAT:ALP:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 17,
+      "location": "PLAT:ALP:H01:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 18,
+      "location": "PLAT:ALP:S06:WB",
+      "used": 2,
+      "capacity": 2,
+      "excess": 0
+    },
+    {
+      "week": 18,
+      "location": "PLAT:ALP:S07:WB",
+      "used": 2,
+      "capacity": 2,
+      "excess": 0
+    },
+    {
+      "week": 18,
+      "location": "PLAT:BET:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 18,
+      "location": "SEC:BET:H01_H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 18,
+      "location": "PLAT:BET:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 18,
+      "location": "PLAT:ALP:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 18,
+      "location": "PLAT:ALP:H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 18,
+      "location": "PLAT:ALP:H01:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 19,
+      "location": "PLAT:ALP:S06:WB",
+      "used": 2,
+      "capacity": 2,
+      "excess": 0
+    },
+    {
+      "week": 19,
+      "location": "PLAT:ALP:S07:WB",
+      "used": 2,
+      "capacity": 2,
+      "excess": 0
+    },
+    {
+      "week": 19,
+      "location": "PLAT:ALP:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 19,
+      "location": "SEC:ALP:H01_H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 19,
+      "location": "PLAT:ALP:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 19,
+      "location": "PLAT:BET:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 19,
+      "location": "SEC:BET:H01_H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 19,
+      "location": "PLAT:BET:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 19,
+      "location": "PLAT:ALP:H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 20,
+      "location": "PLAT:BET:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 20,
+      "location": "SEC:BET:H01_H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 20,
+      "location": "PLAT:BET:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 20,
+      "location": "PLAT:ALP:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 20,
+      "location": "SEC:ALP:H01_H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 20,
+      "location": "PLAT:ALP:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 20,
+      "location": "PLAT:BET:S17:EB",
+      "used": 2,
+      "capacity": 2,
+      "excess": 0
+    },
+    {
+      "week": 21,
+      "location": "PLAT:BET:S15:EB",
+      "used": 2,
+      "capacity": 2,
+      "excess": 0
+    },
+    {
+      "week": 21,
+      "location": "PLAT:BET:S16:EB",
+      "used": 2,
+      "capacity": 2,
+      "excess": 0
+    },
+    {
+      "week": 21,
+      "location": "PLAT:BET:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 21,
+      "location": "SEC:BET:H01_H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 21,
+      "location": "PLAT:BET:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 21,
+      "location": "PLAT:ALP:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 21,
+      "location": "SEC:ALP:H01_H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 21,
+      "location": "PLAT:ALP:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 22,
+      "location": "PLAT:BET:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 22,
+      "location": "PLAT:BET:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 22,
+      "location": "SEC:BET:H01_H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 23,
+      "location": "PLAT:BET:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 23,
+      "location": "SEC:BET:H01_H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 23,
+      "location": "PLAT:BET:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 23,
+      "location": "PLAT:BET:S15:EB",
+      "used": 2,
+      "capacity": 2,
+      "excess": 0
+    },
+    {
+      "week": 23,
+      "location": "PLAT:BET:S16:EB",
+      "used": 2,
+      "capacity": 2,
+      "excess": 0
+    },
+    {
+      "week": 23,
+      "location": "PLAT:ALP:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 23,
+      "location": "SEC:ALP:H01_H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 23,
+      "location": "PLAT:ALP:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 24,
+      "location": "PLAT:BET:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 24,
+      "location": "PLAT:BET:S15:EB",
+      "used": 2,
+      "capacity": 2,
+      "excess": 0
+    },
+    {
+      "week": 24,
+      "location": "PLAT:BET:S16:EB",
+      "used": 2,
+      "capacity": 2,
+      "excess": 0
+    },
+    {
+      "week": 24,
+      "location": "PLAT:BET:S17:EB",
+      "used": 2,
+      "capacity": 2,
+      "excess": 0
+    },
+    {
+      "week": 24,
+      "location": "PLAT:BET:H02:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 24,
+      "location": "PLAT:BET:H01:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 24,
+      "location": "SEC:BET:H01_H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 24,
+      "location": "PLAT:BET:H02:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 25,
+      "location": "PLAT:BET:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 25,
+      "location": "PLAT:ALP:H01:WB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    },
+    {
+      "week": 26,
+      "location": "PLAT:BET:H01:EB",
+      "used": 1,
+      "capacity": 1,
+      "excess": 0
+    }
+  ],
+  "validation_source": "TrackPlan implementation of published rules; official validator unavailable",
+  "assumptions": [
+    "Possession groups use consistent dispatch slots across the route; access_night remains a separate local contractor index.",
+    "Buffers and Live closures are enforced between activities in the same dispatch slot.",
+    "Co-sharing is conservative: overlapping non-Live work spans only.",
+    "Baseline supply repeats weekly; explicitly labelled experiments may override selected location-weeks."
+  ]
+}
