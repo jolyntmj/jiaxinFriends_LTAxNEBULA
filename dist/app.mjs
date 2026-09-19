@@ -1,19 +1,9 @@
-import {
-  renderTimeline,
-  renderContracts,
-  renderCapacity,
-  renderNetwork,
-} from "./results-views.mjs?v=plan-comparison-2";
+import { renderTimeline, renderContracts, renderCapacity, renderNetwork } from "./results-views.mjs?v=plan-comparison-2";
 import { createExperimentPanel } from "./experiment-panel.mjs?v=plan-comparison-2";
-import { createOperationsPanel } from "./operations-panel.mjs";
-import { createCoSharePanel } from "./coshare-panel.mjs";
 import { $, esc, fmt, table } from "./ui.mjs";
 import { createEnhancements } from "./enhancements.mjs";
 import { FILES, parseCSV, prepare, outputFiles } from "./solver.mjs";
-import { accessUnits, DAYS_PER_WEEK } from "./rules.mjs";
 import { makeZIP } from "./zip.mjs";
-
-const MAX_INPUT_FILE_BYTES = 20 * 1024 * 1024;
 
 let data = null;
 let results = {};
@@ -22,14 +12,13 @@ let suggestions = {};
 let searched = {};
 let scenario = "A";
 let view = "timeline";
-let dashboardPage = "overview";
 let busy = false;
 let worker = null;
 
 const titles = {
-  A: "No additional access",
-  B: "Protect completion dates",
-  C: "Balanced plan",
+  A: "Strict supply",
+  B: "Strict schedule",
+  C: "Balanced",
 };
 
 const descriptions = {
@@ -45,27 +34,19 @@ function message(s, error = false) {
 
 function setBusy(v) {
   busy = v;
-  $("message").classList.toggle("busy", v);
 
   for (const id of ["run", "files"]) {
     $(id).disabled = v || (id === "run" && !data);
   }
 
-  $("export").disabled = v || !results[scenario]?.report.feasible;
+  $("export").disabled =
+    v || !results[scenario]?.report.feasible;
 
-  $("export-all").disabled = v || !canExportAll();
-}
-
-function canExportAll() {
-  if (!["A", "B", "C"].every((policy) => results[policy]?.report.feasible)) return false;
-  const revisions = ["A", "B", "C"].map((policy) => results[policy].inputRevision);
-  if (revisions.every((revision) => !revision)) return true;
-  return revisions.every(
-    (revision) =>
-      revision &&
-      revision.kind !== "operational-replan" &&
-      JSON.stringify(revision) === JSON.stringify(revisions[0]),
-  );
+  $("export-all").disabled =
+    v ||
+    !["A", "B", "C"].every(
+      (s) => results[s]?.report.feasible,
+    );
 }
 
 function loaded(d, name) {
@@ -74,8 +55,6 @@ function loaded(d, name) {
   data = d;
   results = {};
   experimentPanel.reset();
-  operationsPanel.reset();
-  coSharePanel.reset();
   originals = {};
   suggestions = {};
   searched = {};
@@ -92,68 +71,44 @@ function loaded(d, name) {
     d["04_LOCATION_SUPPLY"].length +
     " locations";
 
-  message("Instance checked. Generate schedules to compare all three scenarios.");
+  message(
+    "Instance checked. Generate schedules to compare all three scenarios.",
+  );
 
   render();
   setBusy(false);
 }
 
-$("files").onchange = async (event) => {
-  const input = event.currentTarget;
-
+$("files").onchange = async (e) => {
   try {
-    const uploadedData = {};
-    const selectedFiles = Array.from(input.files ?? []);
+    const d = {};
 
-    if (!selectedFiles.length) return;
-
-    message(`Reading ${selectedFiles.length} CSV files…`);
-
-    for (const file of selectedFiles) {
-      const name = file.name
-        .replace(/\.csv$/i, "")
-        .replace(/\s*\(\d+\)$/, "")
-        .trim();
+    for (const f of e.target.files) {
+      const name = f.name
+        .replace(/\(\d+\)(?=\.csv$)/, "")
+        .replace(/\.csv$/i, "");
 
       if (!FILES.includes(name)) {
-        throw Error(
-          `Unexpected CSV filename: ${file.name}. Expected one of: ` +
-            FILES.map((item) => `${item}.csv`).join(", "),
-        );
+        continue;
       }
 
-      if (uploadedData[name]) {
+      if (d[name]) {
         throw Error("Duplicate input: " + name);
       }
 
-      if (file.size > MAX_INPUT_FILE_BYTES) {
-        throw Error(file.name + " exceeds 20 MB");
+      if (f.size > 20 * 1024 * 1024) {
+        throw Error(f.name + " exceeds 20 MB");
       }
 
-      uploadedData[name] = parseCSV(await file.text());
+      d[name] = parseCSV(await f.text());
     }
 
-    const missingFiles = FILES.filter((name) => !uploadedData[name]);
-
-    if (missingFiles.length) {
-      throw Error("Missing CSV files: " + missingFiles.map((name) => `${name}.csv`).join(", "));
-    }
-
-    loaded(uploadedData, `Uploaded planning instance (${selectedFiles.length} CSV files)`);
-  } catch (error) {
-    console.error("CSV upload failed:", error);
-    message(error instanceof Error ? error.message : String(error), true);
-  } finally {
-    input.value = "";
+    loaded(d, "Uploaded planning instance");
+  } catch (e) {
+    message(e.message, true);
+    e.target.value = "";
   }
 };
-
-function finishScheduling() {
-  worker?.terminate();
-  worker = null;
-  setBusy(false);
-  render();
-}
 
 function generate() {
   if (!data || busy) {
@@ -162,8 +117,6 @@ function generate() {
 
   results = {};
   experimentPanel.reset();
-  operationsPanel.reset();
-  coSharePanel.reset();
   originals = {};
   suggestions = {};
   searched = {};
@@ -173,19 +126,20 @@ function generate() {
   setBusy(true);
   render();
 
-  try {
-    worker = new Worker("worker.mjs", { type: "module" });
-  } catch (error) {
-    finishScheduling();
-    message(`Scheduling could not start: ${error.message}`, true);
-    return;
-  }
+  worker = new Worker("worker.mjs", {
+    type: "module",
+  });
 
   worker.onmessage = (e) => {
     const x = e.data;
 
     if (x.type === "progress") {
-      message("Scheduling" + " " + x.scenario + " — comparing constraints and placements…");
+      message(
+        "Scheduling" +
+          " " +
+          x.scenario +
+          " — comparing constraints and placements…",
+      );
     }
 
     if (x.type === "result") {
@@ -201,9 +155,15 @@ function generate() {
     }
 
     if (x.type === "done") {
-      finishScheduling();
+      worker.terminate();
+      worker = null;
 
-      const all = ["A", "B", "C"].every((scenarioId) => results[scenarioId]?.report.feasible);
+      setBusy(false);
+      render();
+
+      const all = Object.values(results).every(
+        (r) => r.report.feasible,
+      );
 
       message(
         all
@@ -214,68 +174,52 @@ function generate() {
     }
 
     if (x.type === "error") {
-      finishScheduling();
+      worker.terminate();
+      worker = null;
+
+      setBusy(false);
+      render();
+
       message(x.message, true);
     }
   };
 
   worker.onerror = (e) => {
-    finishScheduling();
-    message("Scheduling failed: " + e.message, true);
+    worker?.terminate();
+    worker = null;
+
+    setBusy(false);
+    render();
+
+    message(
+      "Scheduling failed: " + e.message,
+      true,
+    );
   };
 
-  try {
-    worker.postMessage({ data });
-  } catch (error) {
-    finishScheduling();
-    message(`Scheduling could not start: ${error.message}`, true);
-  }
+  worker.postMessage({ data });
 }
 
 $("run").onclick = generate;
 
-document.querySelectorAll("[data-scenario]").forEach((button) => {
-  button.onclick = () => {
-    scenario = button.dataset.scenario;
-    dashboardPage = "results";
-    $("inspector").hidden = true;
-    render();
-  };
-});
+document
+  .querySelectorAll("[data-scenario]")
+  .forEach((button) => {
+    button.onclick = () => {
+      scenario = button.dataset.scenario;
+      $("inspector").hidden = true;
+      render();
+    };
+  });
 
-$("scenario-select").onchange = (event) => {
-  scenario = event.target.value;
-  $("inspector").hidden = true;
-  render();
-};
-
-const dashboardCopy = {
-  overview: ["Overview", "Your planning status at a glance."],
-  replan: ["Recovery Planning", "Keep past weeks fixed; move future work if access is lost."],
-  coshare: ["Co-sharing", "Keep activity weeks fixed; explore sharing an access slot."],
-  results: ["Schedule Results", "Inspect the selected scenario in detail."],
-};
-
-function navigate(page) {
-  dashboardPage = page;
-  render();
-  globalThis.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-document.querySelectorAll("[data-dashboard-page], [data-dashboard-go]").forEach((button) => {
-  button.onclick = () => navigate(button.dataset.dashboardPage || button.dataset.dashboardGo);
-});
-
-document.addEventListener("click", (event) => {
-  if (event.target.closest('a[href="#results-tabs"]')) navigate("results");
-});
-
-document.querySelectorAll("[data-view]").forEach((button) => {
-  button.onclick = () => {
-    view = button.dataset.view;
-    render();
-  };
-});
+document
+  .querySelectorAll("[data-view]")
+  .forEach((button) => {
+    button.onclick = () => {
+      view = button.dataset.view;
+      render();
+    };
+  });
 
 $("line").onchange = render;
 $("search").oninput = render;
@@ -288,13 +232,18 @@ function download(name, blob) {
   anchor.download = name;
   anchor.click();
 
-  setTimeout(() => URL.revokeObjectURL(url), 10000);
+  setTimeout(
+    () => URL.revokeObjectURL(url),
+    10000,
+  );
 }
 
 function exportZip(all) {
   const files = {};
 
-  const scenarios = all ? ["A", "B", "C"] : [scenario];
+  const scenarios = all
+    ? ["A", "B", "C"]
+    : [scenario];
 
   for (const s of scenarios) {
     const r = results[s];
@@ -304,101 +253,109 @@ function exportZip(all) {
     }
 
     if (r.inputRevision) {
-      const prefix = all ? s + "/" : "";
+      const prefix = all ? s + '/' : '';
       for (const [name, content] of Object.entries(r.inputRevision.files)) {
-        files[prefix + "revised_inputs/" + name] = content;
+        files[prefix + 'revised_inputs/' + name] = content;
       }
-      const description =
-        r.inputRevision.description ||
-        `${r.inputRevision.activityId} planned start changed from ${r.inputRevision.previous} to ${r.inputRevision.proposed}`;
-      files[prefix + "WHAT_IF_README.txt"] =
-        `What-if plan: ${description}. Results pass implemented checks against the included revised inputs and any capacity overrides, not the original instance. For weekly overrides, use experiment.json with solve(data, scenario, {capacityOverrides, hardDisruption}); the static supply CSV alone does not encode them. Frozen history also requires the original baseline and freezeThroughWeek.`;
-      files[prefix + "experiment.json"] = JSON.stringify(
-        {
-          description,
-          capacityOverrides: r.inputRevision.capacityOverrides || [],
-          hardDisruption: r.inputRevision.hardDisruption || false,
-          freezeThroughWeek: r.inputRevision.freezeThroughWeek ?? null,
-        },
-        null,
-        2,
-      );
+      const description = r.inputRevision.description || `${r.inputRevision.activityId} planned start changed from ${r.inputRevision.previous} to ${r.inputRevision.proposed}`;
+      files[prefix + 'WHAT_IF_README.txt'] = `What-if plan: ${description}. Results pass implemented checks against the included revised inputs and any capacity overrides, not the original instance. For weekly overrides, use experiment.json with solve(data, scenario, {capacityOverrides}); the static supply CSV alone does not encode them.`;
+      files[prefix + 'experiment.json'] = JSON.stringify({ description, capacityOverrides: r.inputRevision.capacityOverrides || [] }, null, 2);
     }
 
-    for (const [name, content] of Object.entries(outputFiles(r))) {
-      files[(all ? s + "/" : "") + name] = content;
+    for (const [name, content] of Object.entries(
+      outputFiles(r),
+    )) {
+      files[(all ? s + "/" : "") + name] =
+        content;
     }
   }
 
-  const filename = all
-    ? scenarios.some((s) => results[s].inputRevision)
-      ? "WhatIf_Results_ABC.zip"
-      : "TrackPlanner_Results_ABC.zip"
-    : (results[scenario].inputRevision ? "WhatIf_" : "") + "Scenario_" + scenario + ".zip";
+  const filename =
+    all
+      ? (scenarios.some(s => results[s].inputRevision) ? "WhatIf_Results_ABC.zip" : "TrackPlan_Results_ABC.zip")
+      : (results[scenario].inputRevision ? "WhatIf_" : "") + "Scenario_" + scenario + ".zip";
 
-  download(filename, makeZIP(files));
+  download(
+    filename,
+    makeZIP(files),
+  );
 }
 
-$("export").onclick = () => exportZip(false);
+$("export").onclick = () =>
+  exportZip(false);
 
-$("export-all").onclick = () => exportZip(true);
+$("export-all").onclick = () =>
+  exportZip(true);
 
 function filtered(r) {
-  const query = $("search").value.toLowerCase();
+  const query = $("search")
+    .value
+    .toLowerCase();
 
   const line = $("line").value;
 
   return r.modelInfo.activities.filter(
     (activity) =>
       (!line || activity.line === line) &&
-      (!query || (activity.id + " " + activity.contract).toLowerCase().includes(query)),
+      (
+        !query ||
+        (
+          activity.id +
+          " " +
+          activity.contract
+        )
+          .toLowerCase()
+          .includes(query)
+      ),
   );
 }
 
 function render() {
   enhancements.render();
   experimentPanel.render();
-  operationsPanel.render();
-  coSharePanel.render();
 
-  $("dashboard-title").textContent = dashboardCopy[dashboardPage][0];
-  $("dashboard-description").textContent = dashboardCopy[dashboardPage][1];
-  $("scenario-select").value = scenario;
-  document.querySelectorAll("[data-dashboard-content]").forEach((section) => {
-    section.hidden = section.dataset.dashboardContent !== dashboardPage;
-  });
-  document.querySelectorAll("[data-dashboard-page]").forEach((button) => {
-    const active = button.dataset.dashboardPage === dashboardPage;
-    button.classList.toggle("active", active);
-    if (active) button.setAttribute("aria-current", "page");
-    else button.removeAttribute("aria-current");
-  });
+  $("export-all").textContent =
+    "Download all scenarios ↓";
 
-  $("export-all").textContent = "Download All ↓";
+  document
+    .querySelectorAll("[data-scenario]")
+    .forEach((button) => {
+      const selected =
+        button.dataset.scenario === scenario;
 
-  document.querySelectorAll("[data-scenario]").forEach((button) => {
-    const selected = button.dataset.scenario === scenario;
+      button.classList.toggle(
+        "selected",
+        selected,
+      );
 
-    button.classList.toggle("selected", selected);
+      button.setAttribute(
+        "aria-pressed",
+        selected,
+      );
+    });
 
-    button.setAttribute("aria-pressed", selected);
-  });
-
-  document.querySelectorAll("[data-view]").forEach((button) => {
-    button.classList.toggle("active", button.dataset.view === view);
-  });
+  document
+    .querySelectorAll("[data-view]")
+    .forEach((button) => {
+      button.classList.toggle(
+        "active",
+        button.dataset.view === view,
+      );
+    });
 
   for (const s of ["A", "B", "C"]) {
     const r = results[s];
 
-    $("score-" + s).textContent = r ? fmt(r.report.objective_score) : "—";
+    $("score-" + s).textContent = r
+      ? fmt(r.report.objective_score)
+      : "—";
 
     $("meta-" + s).textContent = r
-      ? (r.report.feasible
-          ? r.inputRevision
-            ? "Experiment checks passed"
-            : "Checks passed"
-          : "Checks failed") +
+      ? (
+          r.report.feasible
+            ? r.inputRevision ? "Experiment checks passed" : "Checks passed"
+            : "Checks failed"
+        ) +
         " · " +
         r.report.complete +
         "/" +
@@ -407,30 +364,41 @@ function render() {
       : "Generate schedules to compare";
   }
 
-  $("scenario-title").textContent = "Scenario " + scenario + " · " + titles[scenario];
+  $("scenario-title").textContent =
+    "Scenario " +
+    scenario +
+    " · " +
+    titles[scenario];
 
-  $("scenario-description").textContent = descriptions[scenario];
+  $("scenario-description").textContent =
+    descriptions[scenario];
 
   const r = results[scenario];
 
-  $("export").disabled = busy || !r?.report.feasible;
+  $("export").disabled =
+    busy || !r?.report.feasible;
 
-  $("export-all").disabled = busy || !canExportAll();
-  $("export-all").title = canExportAll()
-    ? "Download all three scenarios for one input instance"
-    : "Available when all three passing scenarios use the same inputs";
+  $("export-all").disabled =
+    busy ||
+    !["A", "B", "C"].every(
+      (s) => results[s]?.report.feasible,
+    );
 
   $("validation-badge").textContent = r
-    ? !r.report.feasible
-      ? "Review violations"
-      : r.inputRevision?.kind === "operational-replan"
-        ? "Replan · local checks passed"
-        : r.inputRevision
-          ? "What-if · revised-input checks passed"
-          : "Implemented checks passed"
+    ? r.inputRevision ? "What-if · revised-input checks passed" : r.report.feasible
+      ? "Implemented checks passed"
+      : "Review violations"
     : "Awaiting schedule";
 
-  $("validation-badge").className = "badge " + (r ? (r.report.feasible ? "good" : "bad") : "");
+  $("validation-badge").className =
+    "badge " +
+    (
+      r
+        ? r.report.feasible
+          ? "good"
+          : "bad"
+        : ""
+    );
 
   if (!r) {
     $("metrics").innerHTML = [
@@ -440,21 +408,27 @@ function render() {
       "Extended nights",
     ]
       .map(
-        (label) => "<article>" + "<span>" + label + "</span>" + "<strong>—</strong>" + "</article>",
+        (label) =>
+          "<article>" +
+            "<span>" +
+              label +
+            "</span>" +
+            "<strong>—</strong>" +
+          "</article>",
       )
       .join("");
 
     $("view").innerHTML =
       '<div class="empty">' +
-      "<span>" +
-      "01 / LOAD THE DEMAND BOOK" +
-      "</span>" +
-      "<h3>" +
-      "Your planning timeline starts here." +
-      "</h3>" +
-      "<p>" +
-      "Load the dataset, then generate A, B and C." +
-      "</p>" +
+        "<span>" +
+          "01 / LOAD THE DEMAND BOOK" +
+        "</span>" +
+        "<h3>" +
+          "Your planning timeline starts here." +
+        "</h3>" +
+        "<p>" +
+          "Load the dataset, then generate A, B and C." +
+        "</p>" +
       "</div>";
 
     return;
@@ -463,27 +437,44 @@ function render() {
   const report = r.report;
 
   $("metrics").innerHTML = [
-    ["Workload delivered", report.complete + " / " + report.total, "activities"],
+    [
+      "Workload delivered",
+      report.complete +
+        " / " +
+        report.total,
+      "activities",
+    ],
     [
       "Contract-overrun days",
       fmt(report.overrun_days_total),
-      report.contracts_overrunning + " contracts late",
+      report.contracts_overrunning +
+        " contracts late",
     ],
-    ["Extra access slots", fmt(report.excess_access_nights_total), "summed by location-week"],
-    ["Extended nights", report.eclo_nights_total, "ECLO access records"],
+    [
+      "Extra access slots",
+      fmt(
+        report.excess_access_nights_total,
+      ),
+      "summed by location-week",
+    ],
+    [
+      "Extended nights",
+      report.eclo_nights_total,
+      "ECLO access records",
+    ],
   ]
     .map(
       ([label, number, summary]) =>
         "<article>" +
-        "<span>" +
-        label +
-        "</span>" +
-        "<strong>" +
-        number +
-        " <small>" +
-        summary +
-        "</small>" +
-        "</strong>" +
+          "<span>" +
+            label +
+          "</span>" +
+          "<strong>" +
+            number +
+            " <small>" +
+              summary +
+            "</small>" +
+          "</strong>" +
         "</article>",
     )
     .join("");
@@ -500,7 +491,7 @@ function render() {
     ],
 
     capacity: [
-      "Validation details",
+      "Capacity & validation",
       "Understand the score, inspect busy locations, and see what every check means.",
     ],
 
@@ -510,9 +501,11 @@ function render() {
     ],
   };
 
-  $("view-title").textContent = names[view][0];
+  $("view-title").textContent =
+    names[view][0];
 
-  $("view-help").textContent = names[view][1];
+  $("view-help").textContent =
+    names[view][1];
 
   const viewContext = { data, activities: filtered(r), line: $("line").value, redraw: render };
 
@@ -535,49 +528,100 @@ function render() {
   $("view")
     .querySelectorAll("[data-inspect]")
     .forEach((button) => {
-      button.onclick = () => inspect(button.dataset.inspect);
+      button.onclick = () =>
+        inspect(
+          button.dataset.inspect,
+        );
     });
 }
 
 function inspect(id) {
   const r = results[scenario];
 
-  const activity = r.modelInfo.activities.find((item) => item.id === id);
+  const activity =
+    r.modelInfo.activities.find(
+      (item) => item.id === id,
+    );
 
-  const accesses = r.access.filter((access) => access.activity_id === id);
+  const accesses = r.access.filter(
+    (access) =>
+      access.activity_id === id,
+  );
 
-  const firstWeek = Math.min(...accesses.map((access) => access.week));
+  const firstWeek = Math.min(
+    ...accesses.map(
+      (access) => access.week,
+    ),
+  );
 
-  const lastWeek = Math.max(...accesses.map((access) => access.week));
+  const lastWeek = Math.max(
+    ...accesses.map(
+      (access) => access.week,
+    ),
+  );
 
-  const delays = r.decisions[id] || [];
+  const delays =
+    r.decisions[id] || [];
 
-  const extendedNights = accesses.filter((access) => access.eclo).length;
+  const extendedNights =
+    accesses.filter(
+      (access) => access.eclo,
+    ).length;
 
-  const deliveredUnits = accesses.reduce((sum, access) => sum + accessUnits(access), 0);
+  const deliveredUnits =
+    accesses.reduce(
+      (sum, access) =>
+        sum +
+        1 +
+        0.5 * access.eclo,
+      0,
+    );
 
-  const earliestFinish = activity.start + Math.ceil(activity.workload) - 1;
+  const earliestFinish =
+    activity.start +
+    Math.ceil(activity.workload) -
+    1;
 
   $("inspector").hidden = false;
 
   const detailCards = [
-    ["Delivered / required", deliveredUnits + " / " + activity.workload + " units"],
+    [
+      "Delivered / required",
+      deliveredUnits +
+        " / " +
+        activity.workload +
+        " units",
+    ],
 
-    ["Scheduled weeks", firstWeek + "–" + lastWeek],
+    [
+      "Scheduled weeks",
+      firstWeek +
+        "–" +
+        lastWeek,
+    ],
 
-    ["Earliest start / target", "W" + activity.start + " / W" + activity.due],
+    [
+      "Earliest start / target",
+      "W" +
+        activity.start +
+        " / W" +
+        activity.due,
+    ],
 
-    ["Extended nights", extendedNights],
+    [
+      "Extended nights",
+      extendedNights,
+    ],
   ]
     .map(
       ([label, number]) =>
         "<article>" +
-        "<span>" +
-        label +
-        "</span>" +
-        "<strong>" +
-        number +
-        "</strong>" +
+          "<span>" +
+            label +
+          "</span>" +
+          "<strong>" +
+            number +
+          "</strong>" +
         "</article>",
     )
     .join("");
@@ -586,9 +630,12 @@ function inspect(id) {
 
   if (activity.predecessor) {
     scheduleExplanation +=
-      "Must follow " + esc(activity.predecessor) + " in a strictly later week. ";
+      "Must follow " +
+      esc(activity.predecessor) +
+      " in a strictly later week. ";
   } else {
-    scheduleExplanation += "No predecessor. ";
+    scheduleExplanation +=
+      "No predecessor. ";
   }
 
   if (earliestFinish > activity.due) {
@@ -597,91 +644,132 @@ function inspect(id) {
       earliestFinish +
       ", after the target. ";
   } else {
-    scheduleExplanation += "The start date and workload can fit before the target in isolation. ";
+    scheduleExplanation +=
+      "The start date and workload can fit before the target in isolation. ";
   }
 
   if (lastWeek > activity.due) {
     scheduleExplanation +=
       "This plan finishes " +
-      (lastWeek - activity.due) * DAYS_PER_WEEK +
+      (
+        (lastWeek - activity.due) *
+        7
+      ) +
       " calendar days after the target week.";
   } else {
-    scheduleExplanation += "This plan finishes within the target week.";
+    scheduleExplanation +=
+      "This plan finishes within the target week.";
   }
 
   const delayWarning = delays.length
     ? '<div class="info warning">' +
-      "Deferred in weeks " +
-      delays.map((delay) => delay.week).join(", ") +
-      ": buffers, possession capacity or contractor access/team limits " +
-      "prevented a placement in the attempted plan." +
+        "Deferred in weeks " +
+        delays
+          .map(
+            (delay) => delay.week,
+          )
+          .join(", ") +
+        ": buffers, possession capacity or contractor access/team limits " +
+        "prevented a placement in the attempted plan." +
       "</div>"
     : "";
 
-  const accessRows = accesses.map((access) => [
-    access.access_seq,
-    access.week,
-    access.access_night,
-    access.eclo ? "1.5 · ECLO" : "1.0",
+  const accessRows = accesses.map(
+    (access) => [
+      access.access_seq,
+      access.week,
+      access.access_night,
+      access.eclo
+        ? "1.5 · ECLO"
+        : "1.0",
 
-    esc(
-      r.occupancy.find(
-        (occupation) => occupation.activity_id === id && occupation.week === access.week,
-      )?.co_share_group,
-    ),
-  ]);
+      esc(
+        r.occupancy.find(
+          (occupation) =>
+            occupation.activity_id === id &&
+            occupation.week ===
+              access.week,
+        )?.co_share_group,
+      ),
+    ],
+  );
 
   $("inspector").innerHTML =
     '<div class="inspector-top">' +
-    "<div>" +
-    '<p class="eyebrow">' +
-    "ACTIVITY DETAIL · SCENARIO " +
-    scenario +
-    "</p>" +
-    "<h2>" +
-    esc(activity.id) +
-    " / " +
-    esc(activity.contract) +
-    " · " +
-    esc(activity.line) +
-    " " +
-    esc(activity.bound) +
-    "</h2>" +
-    '<p class="muted">' +
-    esc(activity.nature) +
-    " · " +
-    esc(activity.access_type) +
-    " possession · Contract priority " +
-    activity.priority +
-    "</p>" +
+      "<div>" +
+        '<p class="eyebrow">' +
+          "ACTIVITY DETAIL · SCENARIO " +
+          scenario +
+        "</p>" +
+
+        "<h2>" +
+          esc(activity.id) +
+          " / " +
+          esc(activity.contract) +
+          " · " +
+          esc(activity.line) +
+          " " +
+          esc(activity.bound) +
+        "</h2>" +
+
+        '<p class="muted">' +
+          esc(activity.nature) +
+          " · " +
+          esc(activity.access_type) +
+          " possession · Contract priority " +
+          activity.priority +
+        "</p>" +
+      "</div>" +
+
+      '<button id="close-inspector" aria-label="Close activity detail">' +
+        "Close ×" +
+      "</button>" +
     "</div>" +
-    '<button id="close-inspector" aria-label="Close activity detail">' +
-    "Close ×" +
-    "</button>" +
-    "</div>" +
+
     '<div class="detail-grid">' +
-    detailCards +
+      detailCards +
     "</div>" +
+
     '<div class="info">' +
-    scheduleExplanation +
+      scheduleExplanation +
     "</div>" +
+
     delayWarning +
+
     "<h3>Occupied route</h3>" +
+
     '<p class="path">' +
-    activity.core.map(esc).join(" → ") +
+      activity.core
+        .map(esc)
+        .join(" → ") +
     "</p>" +
+
     "<details>" +
-    "<summary>" +
-    "Safety footprint: " +
-    activity.footprint.length +
-    " locations" +
-    "</summary>" +
-    '<p class="path">' +
-    activity.footprint.map(esc).join("<br>") +
-    "</p>" +
+      "<summary>" +
+        "Safety footprint: " +
+        activity.footprint.length +
+        " locations" +
+      "</summary>" +
+
+      '<p class="path">' +
+        activity.footprint
+          .map(esc)
+          .join("<br>") +
+      "</p>" +
     "</details>" +
+
     "<h3>Access records</h3>" +
-    table(["Sequence", "Week", "Contract night index", "Yield", "Possession group"], accessRows);
+
+    table(
+      [
+        "Sequence",
+        "Week",
+        "Contract night index",
+        "Yield",
+        "Possession group",
+      ],
+      accessRows,
+    );
 
   $("close-inspector").onclick = () => {
     $("inspector").hidden = true;
@@ -696,12 +784,16 @@ function inspect(id) {
 }
 
 // Feature-detected declarative tools expose the same visible UI actions.
-if (navigator.modelContext?.registerTool) {
+if (
+  navigator.modelContext?.registerTool
+) {
   try {
     navigator.modelContext.registerTool({
-      name: "generate_track_schedules",
+      name:
+        "generate_track_schedules",
 
-      description: "Generate A, B and C schedules for the currently loaded planning instance.",
+      description:
+        "Generate A, B and C schedules for the currently loaded planning instance.",
 
       inputSchema: {
         type: "object",
@@ -714,7 +806,8 @@ if (navigator.modelContext?.registerTool) {
             content: [
               {
                 type: "text",
-                text: "Load a planning instance first.",
+                text:
+                  "Load a planning instance first.",
               },
             ],
           };
@@ -726,7 +819,8 @@ if (navigator.modelContext?.registerTool) {
           content: [
             {
               type: "text",
-              text: "Scheduling started. Results appear in the visible workspace.",
+              text:
+                "Scheduling started. Results appear in the visible workspace.",
             },
           ],
         };
@@ -741,53 +835,32 @@ const experimentPanel = createExperimentPanel({
   state: () => ({ data, results, originals, suggestions, scenario, busy }),
   busy: setBusy,
   message,
-  show: (selected) => {
+  show: selected => {
     results = { ...selected };
     $("inspector").hidden = true;
     render();
   },
 });
 
-const operationsPanel = createOperationsPanel({
-  state: () => ({ data, results, originals, scenario, busy }),
-  busy: setBusy,
-  message,
-  navigate,
-  show: (selected) => {
-    results = { ...selected };
-    $("inspector").hidden = true;
-    render();
-  },
-});
+const enhancements =
+  createEnhancements({
+    state: () => ({
+      data,
+      results,
+      scenario,
+      busy,
+    }),
 
-const coSharePanel = createCoSharePanel({
-  state: () => ({ data, results, scenario, busy }),
-  message,
-  navigate,
-  show: (selected) => {
-    results = { ...selected };
-    $("inspector").hidden = true;
-    render();
-  },
-});
+    download,
 
-const enhancements = createEnhancements({
-  state: () => ({
-    data,
-    results,
-    scenario,
-    busy,
-  }),
+    inspect,
 
-  download,
-
-  inspect,
-
-  selectScenario: (selected) => {
-    scenario = selected;
-    $("inspector").hidden = true;
-    render();
-  },
-});
+    selectScenario: (selected) => {
+      scenario = selected;
+      $("inspector").hidden = true;
+      render();
+    },
+  });
 
 render();
+
