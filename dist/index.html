@@ -10,23 +10,19 @@
       content="Compare railway access schedules, inspect safety checks and export scenario results."
     />
 
-    <title>TrackPlan — Railway Access Planning</title>
+    <title>TrackPlanner — Railway Access Planning</title>
 
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230e2338'/%3E%3Cpath d='M10 5v22M22 5v22M10 10h12M10 16h12M10 22h12' stroke='%2351dbb5' stroke-width='3'/%3E%3C/svg%3E"
     />
 
-    <link rel="stylesheet" href="style.css?v=dashboard-replan-2" />
+    <link rel="stylesheet" href="style.css?v=trackplanner-minimal-2" />
   </head>
 
   <body>
     <header>
-      <a class="brand" href="#">
-        <span class="brand-icon">Ⅱ</span>
-        TrackPlan
-        <small>ACCESS CONTROL</small>
-      </a>
+      <a class="brand" href="#">TrackPlanner</a>
 
       <div class="header-note" aria-label="Network lines">
         <span class="line-key alpha"><i aria-hidden="true"></i>Line Alpha</span>
@@ -39,38 +35,34 @@
         <p class="sidebar-label">WORKSPACE</p>
         <nav class="dashboard-nav" aria-label="Dashboard pages">
           <button data-dashboard-page="overview" class="active" aria-current="page">
-            <span>◫</span> Overview
+            Overview
           </button>
-          <button data-dashboard-page="replan"><span>↻</span> Replan</button>
-          <button data-dashboard-page="coshare"><span>◇</span> Share slots</button>
-          <button data-dashboard-page="results"><span>▤</span> Results</button>
+          <button data-dashboard-page="replan">Recovery Planning</button>
+          <button data-dashboard-page="coshare">Co-sharing</button>
+          <button data-dashboard-page="results">Schedule Results</button>
         </nav>
-        <div class="sidebar-help">
-          <b>Plan with confidence</b>
-          <p>Build a baseline, respond to a disruption, then inspect the result.</p>
-        </div>
       </aside>
       <main>
         <div class="page-title">
           <div>
             <p class="eyebrow">RAILWAY ACCESS CONTROL</p>
             <h1 id="dashboard-title">Overview</h1>
-            <p class="muted" id="dashboard-description">Your planning status at a glance.</p>
+            <p class="sr-only" id="dashboard-description">Your planning status at a glance.</p>
           </div>
 
-          <button id="export-all" class="primary" disabled>Download all scenarios ↓</button>
+          <button id="export-all" disabled>Download All ↓</button>
         </div>
 
-        <div id="message" role="status" aria-live="polite">
-          Load your data, generate a baseline, then explore changes.
-        </div>
+        <div id="message" role="status" aria-live="polite"></div>
 
         <div data-dashboard-content="overview">
           <section class="setup">
             <div>
               <h2>Planning data</h2>
 
-              <p id="instance-status">Upload a dataset to begin.</p>
+              <p id="instance-status" class="sr-only" aria-live="polite">
+                Upload a dataset to begin.
+              </p>
             </div>
 
             <div class="actions">
@@ -111,12 +103,12 @@
             <button class="scenario selected" data-scenario="A">
               <span>
                 SCENARIO A
-                <b>Strict supply</b>
+                <b>No additional access</b>
               </span>
 
               <strong id="score-A">—</strong>
 
-              <small> No extra access · no extended nights </small>
+              <small> Uses existing access capacity only · dates may move </small>
 
               <div id="meta-A">Generate schedules to compare</div>
             </button>
@@ -124,12 +116,12 @@
             <button class="scenario" data-scenario="B">
               <span>
                 SCENARIO B
-                <b>Strict schedule</b>
+                <b>Protect completion dates</b>
               </span>
 
               <strong id="score-B">—</strong>
 
-              <small> Meet dates · minimise added access cost </small>
+              <small> Meets planned dates · minimises added access cost </small>
 
               <div id="meta-B">Generate schedules to compare</div>
             </button>
@@ -137,12 +129,12 @@
             <button class="scenario" data-scenario="C">
               <span>
                 SCENARIO C
-                <b>Balanced</b>
+                <b>Balanced plan</b>
               </span>
 
               <strong id="score-C">—</strong>
 
-              <small> Limited extra access · trade off delay </small>
+              <small> Balances limited extra access against delay </small>
 
               <div id="meta-C">Generate schedules to compare</div>
             </button>
@@ -155,7 +147,7 @@
             </div>
             <div class="actions">
               <button data-dashboard-go="replan">Open replan →</button
-              ><button data-dashboard-go="results">View results →</button>
+              ><button data-dashboard-go="results">View Results →</button>
             </div>
           </section>
         </div>
@@ -189,16 +181,16 @@
             <label
               >Scenario
               <select id="scenario-select" aria-label="Results scenario">
-                <option value="A">A · Strict supply</option>
-                <option value="B">B · Strict schedule</option>
-                <option value="C">C · Balanced</option>
+                <option value="A">A · No additional access</option>
+                <option value="B">B · Protect completion dates</option>
+                <option value="C">C · Balanced plan</option>
               </select></label
             >
           </div>
 
           <div class="workspace-heading">
             <div>
-              <h2 id="scenario-title">Scenario A · Strict supply</h2>
+              <h2 id="scenario-title">Scenario A · No additional access</h2>
 
               <p class="muted" id="scenario-description">
                 Supply stays fixed. Completion dates absorb congestion.
@@ -235,7 +227,7 @@
               <div>
                 <p class="eyebrow">CONTROLLER BRIEFING</p>
 
-                <h2>Delivery risks & decisions</h2>
+                <h2>Controller recommendation</h2>
               </div>
 
               <button id="download-brief" disabled>Download briefing ↓</button>
@@ -249,9 +241,9 @@
 
             <button data-view="contracts">Contract delivery</button>
 
-            <button data-view="capacity">Capacity & checks</button>
-
             <button data-view="network">Network</button>
+
+            <button data-view="capacity">Validation details</button>
           </nav>
 
           <section class="work-panel">
@@ -286,7 +278,7 @@
                   />
                 </label>
 
-                <button id="export" disabled>Export selected scenario ↓</button>
+                <button id="export" disabled>Export Scenario ↓</button>
               </div>
             </div>
 
@@ -306,14 +298,14 @@
 
         <footer>
           <span>
-            TrackPlan / Railway access planning ·
+            TrackPlanner / Railway access planning ·
 
-            <a href="TrackPlan_Source.zip" download> Download project source </a>
+            <a href="TrackPlanner_Source.zip" download> Download project source </a>
           </span>
         </footer>
       </main>
     </div>
 
-    <script type="module" src="app.mjs?v=dashboard-replan-2"></script>
+    <script type="module" src="app.mjs?v=trackplanner-minimal-2"></script>
   </body>
 </html>

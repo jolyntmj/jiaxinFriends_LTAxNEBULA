@@ -32,7 +32,7 @@ export function createCoSharePanel(api) {
       preview = null;
       exploration = result?.report.feasible ? exploreCoSharing(state.data, result) : null;
     }
-    panel.innerHTML = `<div class="feature-heading"><p class="eyebrow">03 / SAME-WEEK EFFICIENCY</p><h2>Share an existing access slot</h2><p class="muted">Compare activities already scheduled in the same week and overlapping location. Every preview is checked against TrackPlan’s implemented rules—not the organiser’s unavailable reference validator.</p></div>
+    panel.innerHTML = `<div class="feature-heading"><p class="eyebrow">03 / SAME-WEEK EFFICIENCY</p><h2>Share an existing access slot</h2><p class="muted">Compare activities already scheduled in the same week and overlapping location. Every preview is checked against TrackPlanner’s implemented rules—not the organiser’s unavailable reference validator.</p></div>
       <div class="feature-mode"><strong>Weeks stay the same</strong><span>Only possession grouping changes. Use this to see whether work already planned together can share one slot; it does not respond to a disruption or move work to another week.</span></div>
       <div class="share-rules"><span>PM: alone</span><span>PC: with up to 3 C</span><span>C: up to 4 together</span><span>Live work: excluded from sharing</span></div>
       ${!exploration ? '<p class="empty-inline">Generate a passing schedule to explore co-sharing.</p>' : content(state)}`;

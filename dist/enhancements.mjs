@@ -90,14 +90,14 @@ export function createEnhancements(api) {
       });
 
     lastBrief = [
-      "TrackPlan controller briefing — Scenario " + state.scenario,
+      "TrackPlanner controller briefing — Scenario " + state.scenario,
       summary,
       "Complete activities: " + result.report.complete + "/" + result.report.total,
       ...comparisons,
       "Decisions: " +
         (approvals.join("; ") || "No additional access or deadline concession identified."),
       "Scores measure different policies: B enforces deadlines; A/C may accept delay.",
-      "Checks are TrackPlan checks; the official validator has not been run.",
+      "Checks are TrackPlanner checks; the official validator has not been run.",
     ].join("\n");
 
     $("brief-content").innerHTML =

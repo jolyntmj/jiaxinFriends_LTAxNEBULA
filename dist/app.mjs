@@ -27,9 +27,9 @@ let busy = false;
 let worker = null;
 
 const titles = {
-  A: "Strict supply",
-  B: "Strict schedule",
-  C: "Balanced",
+  A: "No additional access",
+  B: "Protect completion dates",
+  C: "Balanced plan",
 };
 
 const descriptions = {
@@ -45,6 +45,7 @@ function message(s, error = false) {
 
 function setBusy(v) {
   busy = v;
+  $("message").classList.toggle("busy", v);
 
   for (const id of ["run", "files"]) {
     $(id).disabled = v || (id === "run" && !data);
@@ -98,14 +99,27 @@ function loaded(d, name) {
 }
 
 $("files").onchange = async (event) => {
+  const input = event.currentTarget;
+
   try {
     const uploadedData = {};
+    const selectedFiles = Array.from(input.files ?? []);
 
-    for (const file of event.target.files) {
-      const name = file.name.replace(/\(\d+\)(?=\.csv$)/, "").replace(/\.csv$/i, "");
+    if (!selectedFiles.length) return;
+
+    message(`Reading ${selectedFiles.length} CSV files…`);
+
+    for (const file of selectedFiles) {
+      const name = file.name
+        .replace(/\.csv$/i, "")
+        .replace(/\s*\(\d+\)$/, "")
+        .trim();
 
       if (!FILES.includes(name)) {
-        continue;
+        throw Error(
+          `Unexpected CSV filename: ${file.name}. Expected one of: ` +
+            FILES.map((item) => `${item}.csv`).join(", "),
+        );
       }
 
       if (uploadedData[name]) {
@@ -119,10 +133,18 @@ $("files").onchange = async (event) => {
       uploadedData[name] = parseCSV(await file.text());
     }
 
-    loaded(uploadedData, "Uploaded planning instance");
+    const missingFiles = FILES.filter((name) => !uploadedData[name]);
+
+    if (missingFiles.length) {
+      throw Error("Missing CSV files: " + missingFiles.map((name) => `${name}.csv`).join(", "));
+    }
+
+    loaded(uploadedData, `Uploaded planning instance (${selectedFiles.length} CSV files)`);
   } catch (error) {
-    message(error.message, true);
-    event.target.value = "";
+    console.error("CSV upload failed:", error);
+    message(error instanceof Error ? error.message : String(error), true);
+  } finally {
+    input.value = "";
   }
 };
 
@@ -229,9 +251,9 @@ $("scenario-select").onchange = (event) => {
 
 const dashboardCopy = {
   overview: ["Overview", "Your planning status at a glance."],
-  replan: ["Disruption replan", "Keep past weeks fixed; move future work if access is lost."],
+  replan: ["Recovery Planning", "Keep past weeks fixed; move future work if access is lost."],
   coshare: ["Co-sharing", "Keep activity weeks fixed; explore sharing an access slot."],
-  results: ["Schedule results", "Inspect the selected scenario in detail."],
+  results: ["Schedule Results", "Inspect the selected scenario in detail."],
 };
 
 function navigate(page) {
@@ -311,7 +333,7 @@ function exportZip(all) {
   const filename = all
     ? scenarios.some((s) => results[s].inputRevision)
       ? "WhatIf_Results_ABC.zip"
-      : "TrackPlan_Results_ABC.zip"
+      : "TrackPlanner_Results_ABC.zip"
     : (results[scenario].inputRevision ? "WhatIf_" : "") + "Scenario_" + scenario + ".zip";
 
   download(filename, makeZIP(files));
@@ -352,7 +374,7 @@ function render() {
     else button.removeAttribute("aria-current");
   });
 
-  $("export-all").textContent = "Download all scenarios ↓";
+  $("export-all").textContent = "Download All ↓";
 
   document.querySelectorAll("[data-scenario]").forEach((button) => {
     const selected = button.dataset.scenario === scenario;
@@ -478,7 +500,7 @@ function render() {
     ],
 
     capacity: [
-      "Capacity & validation",
+      "Validation details",
       "Understand the score, inspect busy locations, and see what every check means.",
     ],
 
