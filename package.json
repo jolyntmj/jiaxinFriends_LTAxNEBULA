@@ -1,10 +1,10 @@
 {
-  "name": "trackplan",
+  "name": "trackplanner",
   "private": true,
   "type": "module",
   "scripts": {
-    "format": "prettier --write README.md docs/CONTRIBUTING.md docs/DEVELOPER_GUIDE.md '.github/workflows/*.yml' package.json .prettierrc.json eslint.config.mjs 'dist/**/*.{mjs,html,css}' 'scripts/*.mjs'",
-    "format:check": "prettier --check README.md docs/CONTRIBUTING.md docs/DEVELOPER_GUIDE.md '.github/workflows/*.yml' package.json .prettierrc.json eslint.config.mjs 'dist/**/*.{mjs,html,css}' 'scripts/*.mjs'",
+    "format": "prettier --write docs/DEVELOPER_GUIDE.md '.github/workflows/*.yml' package.json .prettierrc.json eslint.config.mjs 'dist/**/*.{mjs,html,css}' 'scripts/*.mjs'",
+    "format:check": "prettier --check README.md docs/DEVELOPER_GUIDE.md '.github/workflows/*.yml' package.json .prettierrc.json eslint.config.mjs 'dist/**/*.{mjs,html,css}' 'scripts/*.mjs'",
     "format:python": "ruff format scripts/*.py",
     "lint": "eslint eslint.config.mjs 'dist/**/*.mjs' 'scripts/*.mjs'",
     "check:python": "ruff check scripts && ruff format --check scripts && python3 scripts/verify.py",

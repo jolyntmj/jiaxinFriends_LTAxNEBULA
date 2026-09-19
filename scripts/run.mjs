@@ -68,6 +68,6 @@ function main() {
 try {
   main();
 } catch (error) {
-  console.error(`TrackPlan: ${error.message}`);
+  console.error(`TrackPlanner: ${error.message}`);
   process.exitCode = 1;
 }
