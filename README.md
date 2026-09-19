@@ -30,3 +30,4 @@ If you prefer to run TrackPlan locally:
 
 ```bash
 python -m http.server 8000 --directory dist
+```
