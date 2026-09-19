@@ -1,10 +1,20 @@
 import fs from "node:fs";
 import assert from "node:assert/strict";
 
-import { FILES, outputFiles, prepare, solve } from "../dist/solver.mjs";
+import {
+  FILES,
+  outputFiles,
+  prepare,
+  solve,
+} from "../dist/solver.mjs";
 import { activityAdvice } from "../dist/planning.mjs";
 
-const data = JSON.parse(fs.readFileSync(new URL("../dist/example.json", import.meta.url), "utf8"));
+const data = JSON.parse(
+  fs.readFileSync(
+    new URL("../dist/example.json", import.meta.url),
+    "utf8",
+  ),
+);
 const original = JSON.stringify(data);
 
 for (const scenario of ["A", "B", "C"]) {
@@ -23,10 +33,7 @@ for (const scenario of ["A", "B", "C"]) {
 
   assert.match(files["SCHEDULE_ACCESS.csv"], /^activity_id,access_seq,week,eclo,access_night/m);
   assert.match(files["SCHEDULE_OCCUPANCY.csv"], /^activity_id,week,location_id,co_share_group/m);
-  assert.match(
-    files["RESULTS.csv"],
-    /^scenario,contract_number,simulated_completion_date,overrun_days/m,
-  );
+  assert.match(files["RESULTS.csv"], /^scenario,contract_number,simulated_completion_date,overrun_days/m);
 }
 
 const scenarioA = solve(data, "A");

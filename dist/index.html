@@ -1,28 +1,35 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8" />
+    <meta charset="utf-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+    >
 
     <meta
       name="description"
       content="Compare railway access schedules, inspect safety checks and export scenario results."
-    />
+    >
 
-    <title>TrackPlanner — Railway Access Planning</title>
+    <title>TrackPlan — Railway Access Planning</title>
 
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230e2338'/%3E%3Cpath d='M10 5v22M22 5v22M10 10h12M10 16h12M10 22h12' stroke='%2351dbb5' stroke-width='3'/%3E%3C/svg%3E"
-    />
+    >
 
-    <link rel="stylesheet" href="style.css?v=trackplanner-minimal-2" />
+    <link rel="stylesheet" href="style.css?v=plan-comparison-2">
   </head>
 
   <body>
     <header>
-      <a class="brand" href="#">TrackPlanner</a>
+      <a class="brand" href="#">
+        <span class="brand-icon">Ⅱ</span>
+        TrackPlan
+        <small>ACCESS CONTROL</small>
+      </a>
 
       <div class="header-note" aria-label="Network lines">
         <span class="line-key alpha"><i aria-hidden="true"></i>Line Alpha</span>
@@ -30,282 +37,317 @@
       </div>
     </header>
 
-    <div class="dashboard-shell">
-      <aside class="dashboard-sidebar" aria-label="Dashboard navigation">
-        <p class="sidebar-label">WORKSPACE</p>
-        <nav class="dashboard-nav" aria-label="Dashboard pages">
-          <button data-dashboard-page="overview" class="active" aria-current="page">
-            Overview
-          </button>
-          <button data-dashboard-page="replan">Recovery Planning</button>
-          <button data-dashboard-page="coshare">Co-sharing</button>
-          <button data-dashboard-page="results">Schedule Results</button>
-        </nav>
-      </aside>
-      <main>
-        <div class="page-title">
-          <div>
-            <p class="eyebrow">RAILWAY ACCESS CONTROL</p>
-            <h1 id="dashboard-title">Overview</h1>
-            <p class="sr-only" id="dashboard-description">Your planning status at a glance.</p>
-          </div>
+    <main>
+      <div class="page-title">
+        <h1>Planning workspace</h1>
 
-          <button id="export-all" disabled>Download All ↓</button>
+        <button
+          id="export-all"
+          class="primary"
+          disabled
+        >
+          Download all scenarios ↓
+        </button>
+      </div>
+
+      <nav class="workspace-shortcuts" aria-label="Workspace sections"><a href="#experiment-lab">Plan comparison</a><a href="#scenario-scores">Scenario scores</a><a href="#results-tabs">Explore results ↓</a></nav>
+
+      <section class="setup">
+        <div>
+          <h2>Planning data</h2>
+
+          <p id="instance-status">
+            Upload a dataset to begin.
+          </p>
         </div>
 
-        <div id="message" role="status" aria-live="polite"></div>
+        <div class="actions">
+          <label class="upload">
+            Upload dataset
 
-        <div data-dashboard-content="overview">
-          <section class="setup">
-            <div>
-              <h2>Planning data</h2>
-
-              <p id="instance-status" class="sr-only" aria-live="polite">
-                Upload a dataset to begin.
-              </p>
-            </div>
-
-            <div class="actions">
-              <label class="upload">
-                Upload dataset
-
-                <input id="files" type="file" accept=".csv" multiple />
-              </label>
-
-              <button id="run" class="primary" disabled>Generate baseline →</button>
-            </div>
-          </section>
-
-          <section class="workflow" aria-label="Planning workflow">
-            <div>
-              <span>01</span>
-              <p>
-                <b>Build a baseline</b
-                ><small>Schedule the full workload under three policies.</small>
-              </p>
-            </div>
-            <div>
-              <span>02</span>
-              <p>
-                <b>Test a change</b
-                ><small>Explore an earlier start or a capacity disruption.</small>
-              </p>
-            </div>
-            <div>
-              <span>03</span>
-              <p>
-                <b>Explain the impact</b
-                ><small>Compare penalties, checks and displaced work.</small>
-              </p>
-            </div>
-          </section>
-          <section id="scenario-scores" class="scenario-grid" aria-label="Scenario comparison">
-            <button class="scenario selected" data-scenario="A">
-              <span>
-                SCENARIO A
-                <b>No additional access</b>
-              </span>
-
-              <strong id="score-A">—</strong>
-
-              <small> Uses existing access capacity only · dates may move </small>
-
-              <div id="meta-A">Generate schedules to compare</div>
-            </button>
-
-            <button class="scenario" data-scenario="B">
-              <span>
-                SCENARIO B
-                <b>Protect completion dates</b>
-              </span>
-
-              <strong id="score-B">—</strong>
-
-              <small> Meets planned dates · minimises added access cost </small>
-
-              <div id="meta-B">Generate schedules to compare</div>
-            </button>
-
-            <button class="scenario" data-scenario="C">
-              <span>
-                SCENARIO C
-                <b>Balanced plan</b>
-              </span>
-
-              <strong id="score-C">—</strong>
-
-              <small> Balances limited extra access against delay </small>
-
-              <div id="meta-C">Generate schedules to compare</div>
-            </button>
-          </section>
-
-          <section class="dashboard-next">
-            <div>
-              <h2>Ready to explore?</h2>
-              <p>Replan around a future disruption or inspect the detailed schedule.</p>
-            </div>
-            <div class="actions">
-              <button data-dashboard-go="replan">Open replan →</button
-              ><button data-dashboard-go="results">View Results →</button>
-            </div>
-          </section>
-        </div>
-
-        <div data-dashboard-content="replan" hidden>
-          <section
-            id="operations-panel"
-            class="feature-panel"
-            aria-label="Operational replan"
-          ></section>
-          <details class="legacy-experiment">
-            <summary>Other what-if comparisons · full rerun</summary>
-            <section
-              id="experiment-lab"
-              class="experiment-lab"
-              aria-label="Plan comparison"
-            ></section>
-          </details>
-        </div>
-
-        <div data-dashboard-content="coshare" hidden>
-          <section
-            id="coshare-panel"
-            class="feature-panel"
-            aria-label="Co-sharing explorer"
-          ></section>
-        </div>
-
-        <div data-dashboard-content="results" hidden>
-          <div class="results-scenario-control">
-            <label
-              >Scenario
-              <select id="scenario-select" aria-label="Results scenario">
-                <option value="A">A · No additional access</option>
-                <option value="B">B · Protect completion dates</option>
-                <option value="C">C · Balanced plan</option>
-              </select></label
+            <input
+              id="files"
+              type="file"
+              accept=".csv"
+              multiple
             >
+          </label>
+
+          <button
+            id="run"
+            class="primary"
+            disabled
+          >
+            Generate baseline →
+          </button>
+        </div>
+      </section>
+
+      <div
+        id="message"
+        role="status"
+        aria-live="polite"
+      >
+        Load your data, generate a baseline, then explore changes.
+      </div>
+
+      <section class="workflow" aria-label="Planning workflow">
+        <div><span>01</span><p><b>Build a baseline</b><small>Schedule the full workload under three policies.</small></p></div>
+        <div><span>02</span><p><b>Test a change</b><small>Explore an earlier start or a capacity disruption.</small></p></div>
+        <div><span>03</span><p><b>Explain the impact</b><small>Compare penalties, checks and displaced work.</small></p></div>
+      </section>
+      <section id="experiment-lab" class="experiment-lab" aria-label="Plan comparison"></section>
+      <section
+        id="scenario-scores"
+        class="scenario-grid"
+        aria-label="Scenario comparison"
+      >
+        <button
+          class="scenario selected"
+          data-scenario="A"
+        >
+          <span>
+            SCENARIO A
+            <b>Strict supply</b>
+          </span>
+
+          <strong id="score-A">—</strong>
+
+          <small>
+            No extra access · no extended nights
+          </small>
+
+          <div id="meta-A">
+            Generate schedules to compare
           </div>
+        </button>
 
-          <div class="workspace-heading">
-            <div>
-              <h2 id="scenario-title">Scenario A · No additional access</h2>
+        <button
+          class="scenario"
+          data-scenario="B"
+        >
+          <span>
+            SCENARIO B
+            <b>Strict schedule</b>
+          </span>
 
-              <p class="muted" id="scenario-description">
-                Supply stays fixed. Completion dates absorb congestion.
-              </p>
-            </div>
+          <strong id="score-B">—</strong>
 
-            <span class="badge" id="validation-badge"> Awaiting schedule </span>
+          <small>
+            Meet dates · minimise added access cost
+          </small>
+
+          <div id="meta-B">
+            Generate schedules to compare
           </div>
+        </button>
 
-          <section class="metrics" id="metrics">
-            <article>
-              <span>Workload delivered</span>
-              <strong>—</strong>
-            </article>
+        <button
+          class="scenario"
+          data-scenario="C"
+        >
+          <span>
+            SCENARIO C
+            <b>Balanced</b>
+          </span>
 
-            <article>
-              <span>Contract-overrun days</span>
-              <strong>—</strong>
-            </article>
+          <strong id="score-C">—</strong>
 
-            <article>
-              <span>Extra access slots</span>
-              <strong>—</strong>
-            </article>
+          <small>
+            Limited extra access · trade off delay
+          </small>
 
-            <article>
-              <span>Extended nights</span>
-              <strong>—</strong>
-            </article>
-          </section>
+          <div id="meta-C">
+            Generate schedules to compare
+          </div>
+        </button>
+      </section>
 
-          <section class="briefing">
-            <div class="inspector-top">
-              <div>
-                <p class="eyebrow">CONTROLLER BRIEFING</p>
+      <div class="workspace-heading">
+        <div>
+          <h2 id="scenario-title">
+            Scenario A · Strict supply
+          </h2>
 
-                <h2>Controller recommendation</h2>
-              </div>
-
-              <button id="download-brief" disabled>Download briefing ↓</button>
-            </div>
-
-            <div id="brief-content"></div>
-          </section>
-
-          <nav class="tabs" id="results-tabs" aria-label="Schedule views">
-            <button data-view="timeline" class="active">Weekly timeline</button>
-
-            <button data-view="contracts">Contract delivery</button>
-
-            <button data-view="network">Network</button>
-
-            <button data-view="capacity">Validation details</button>
-          </nav>
-
-          <section class="work-panel">
-            <div class="toolbar">
-              <div>
-                <h2 id="view-title">Activity access plan</h2>
-
-                <p class="muted" id="view-help">
-                  Each coloured cell is a scheduled access. Click an activity to inspect it.
-                </p>
-              </div>
-
-              <div class="actions">
-                <label class="filter-label">
-                  Line
-
-                  <select id="line">
-                    <option value="">All lines</option>
-
-                    <option>ALP</option>
-                    <option>BET</option>
-                  </select>
-                </label>
-
-                <label class="filter-label">
-                  Activity
-
-                  <input
-                    id="search"
-                    placeholder="Activity or contract"
-                    aria-label="Find activity or contract"
-                  />
-                </label>
-
-                <button id="export" disabled>Export Scenario ↓</button>
-              </div>
-            </div>
-
-            <div id="view">
-              <div class="empty">
-                <span> 01 / LOAD THE DEMAND BOOK </span>
-
-                <h3>Your planning timeline starts here.</h3>
-
-                <p>Load the supplied dataset, then generate schedules for A, B and C.</p>
-              </div>
-            </div>
-          </section>
-
-          <section id="inspector" class="inspector" hidden></section>
+          <p
+            class="muted"
+            id="scenario-description"
+          >
+            Supply stays fixed. Completion dates absorb congestion.
+          </p>
         </div>
 
-        <footer>
-          <span>
-            TrackPlanner / Railway access planning ·
+        <span
+          class="badge"
+          id="validation-badge"
+        >
+          Awaiting schedule
+        </span>
+      </div>
 
-            <a href="TrackPlanner_Source.zip" download> Download project source </a>
-          </span>
-        </footer>
-      </main>
-    </div>
+      <section
+        class="metrics"
+        id="metrics"
+      >
+        <article>
+          <span>Workload delivered</span>
+          <strong>—</strong>
+        </article>
 
-    <script type="module" src="app.mjs?v=trackplanner-minimal-2"></script>
+        <article>
+          <span>Contract-overrun days</span>
+          <strong>—</strong>
+        </article>
+
+        <article>
+          <span>Extra access slots</span>
+          <strong>—</strong>
+        </article>
+
+        <article>
+          <span>Extended nights</span>
+          <strong>—</strong>
+        </article>
+      </section>
+
+      <section class="briefing">
+        <div class="inspector-top">
+          <div>
+            <p class="eyebrow">
+              CONTROLLER BRIEFING
+            </p>
+
+            <h2>Delivery risks & decisions</h2>
+          </div>
+
+          <button
+            id="download-brief"
+            disabled
+          >
+            Download briefing ↓
+          </button>
+        </div>
+
+        <div id="brief-content"></div>
+      </section>
+
+
+      <nav
+        class="tabs"
+        id="results-tabs"
+        aria-label="Schedule views"
+      >
+        <button
+          data-view="timeline"
+          class="active"
+        >
+          Weekly timeline
+        </button>
+
+        <button data-view="contracts">
+          Contract delivery
+        </button>
+
+        <button data-view="capacity">
+          Capacity & checks
+        </button>
+
+        <button data-view="network">
+          Network
+        </button>
+      </nav>
+
+      <section class="work-panel">
+        <div class="toolbar">
+          <div>
+            <h2 id="view-title">
+              Activity access plan
+            </h2>
+
+            <p
+              class="muted"
+              id="view-help"
+            >
+              Each coloured cell is a scheduled access.
+              Click an activity to inspect it.
+            </p>
+          </div>
+
+          <div class="actions">
+            <label class="filter-label">
+              Line
+
+              <select id="line">
+                <option value="">
+                  All lines
+                </option>
+
+                <option>ALP</option>
+                <option>BET</option>
+              </select>
+            </label>
+
+            <label class="filter-label">
+              Activity
+
+              <input
+                id="search"
+                placeholder="Activity or contract"
+                aria-label="Find activity or contract"
+              >
+            </label>
+
+            <button
+              id="export"
+              disabled
+            >
+              Export selected scenario ↓
+            </button>
+          </div>
+        </div>
+
+        <div id="view">
+          <div class="empty">
+            <span>
+              01 / LOAD THE DEMAND BOOK
+            </span>
+
+            <h3>
+              Your planning timeline starts here.
+            </h3>
+
+            <p>
+              Load the supplied dataset, then generate
+              schedules for A, B and C.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="inspector"
+        class="inspector"
+        hidden
+      ></section>
+
+      <footer>
+        <span>
+          TrackPlan / Railway access planning ·
+
+          <a
+            href="TrackPlan_Source.zip"
+            download
+          >
+            Download project source
+          </a>
+        </span>
+      </footer>
+    </main>
+
+    <script
+      type="module"
+      src="app.mjs?v=plan-comparison-2"
+    ></script>
   </body>
 </html>
+

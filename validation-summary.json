@@ -1,0 +1,29 @@
+{
+  "A": {
+    "feasible": true,
+    "complete": 54,
+    "total": 54,
+    "objective_score": 952,
+    "overrun_days_total": 217,
+    "excess_access_nights_total": 0,
+    "eclo_nights_total": 0
+  },
+  "B": {
+    "feasible": true,
+    "complete": 54,
+    "total": 54,
+    "objective_score": 150,
+    "overrun_days_total": 0,
+    "excess_access_nights_total": 0,
+    "eclo_nights_total": 30
+  },
+  "C": {
+    "feasible": true,
+    "complete": 54,
+    "total": 54,
+    "objective_score": 862.8,
+    "overrun_days_total": 196,
+    "excess_access_nights_total": 0,
+    "eclo_nights_total": 4
+  }
+}

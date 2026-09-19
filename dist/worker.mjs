@@ -5,7 +5,11 @@ self.onmessage = (event) => {
   try {
     const { data } = event.data;
 
-    const scenarios = ["A", "B", "C"];
+    const scenarios = [
+      "A",
+      "B",
+      "C",
+    ];
 
     for (const scenario of scenarios) {
       self.postMessage({
@@ -20,8 +24,7 @@ self.onmessage = (event) => {
         scenario,
         result,
       });
-      const recommendation =
-        findRecommendation(data, result) || findStartDateSuggestion(data, result);
+      const recommendation = findRecommendation(data, result) || findStartDateSuggestion(data, result);
       self.postMessage({ type: "recommendation", scenario, recommendation });
     }
 
