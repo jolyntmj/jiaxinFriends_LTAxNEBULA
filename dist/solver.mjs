@@ -212,6 +212,11 @@ export function prepare(data, options = {}) {
     byId,
     supplies,
     routes,
+    hardDisruption: options.hardDisruption === true,
+    isDisrupted: (loc, week) =>
+      overrides.some(
+        (change) => change.location === loc && +week >= change.from && +week <= change.to,
+      ),
     capacity: (loc, week) =>
       overrides.find(
         (change) => change.location === loc && +week >= change.from && +week <= change.to,
@@ -243,7 +248,15 @@ function slotFit(m, a, peers) {
   }
   return true;
 }
-function run(m, scenario, seed, windows = {}, allowECLO = false, strictCapacity = false) {
+function run(
+  m,
+  scenario,
+  seed,
+  windows = {},
+  allowECLO = false,
+  strictCapacity = false,
+  replan = {},
+) {
   const remaining = new Map(m.acts.map((a) => [a.activity_id, a.workload])),
     done = new Map(),
     access = [],
@@ -251,21 +264,58 @@ function run(m, scenario, seed, windows = {}, allowECLO = false, strictCapacity 
     decisions = {},
     weekPlans = [];
   let last = 0;
+  const frozenThrough = replan.freezeThroughWeek || 0;
+  const baseline = replan.lockedBaseline;
+  const baselineAccess = new Map();
+  const baselineGroup = new Map();
+  const placedCount = new Map();
+  if (baseline) {
+    for (const row of baseline.access) {
+      const rows = baselineAccess.get(row.activity_id) || [];
+      rows.push(row);
+      baselineAccess.set(row.activity_id, rows);
+    }
+    for (const row of baseline.occupancy)
+      baselineGroup.set(`${row.activity_id}|${row.week}`, row.co_share_group);
+    for (const rows of baselineAccess.values())
+      rows.sort((first, second) => first.week - second.week);
+    for (const row of baseline.access.filter((entry) => entry.week <= frozenThrough)) {
+      const remainingUnits = remaining.get(row.activity_id) - accessUnits(row);
+      if (remainingUnits <= 1e-9) {
+        remaining.delete(row.activity_id);
+        done.set(row.activity_id, row.week);
+      } else remaining.set(row.activity_id, remainingUnits);
+      access.push({ ...row });
+      placedCount.set(row.activity_id, (placedCount.get(row.activity_id) || 0) + 1);
+      last = Math.max(last, row.week);
+    }
+    occupancy.push(
+      ...baseline.occupancy
+        .filter((entry) => entry.week <= frozenThrough)
+        .map((entry) => ({ ...entry })),
+    );
+  }
   const maxWeeks =
     Math.max(m.horizon, ...m.acts.map((a) => a.start)) +
     Math.ceil(m.acts.reduce((s, a) => s + a.workload, 0)) +
     40;
-  for (let w = 1; remaining.size && w <= maxWeeks; w++) {
+  for (let w = frozenThrough + 1; remaining.size && w <= maxWeeks; w++) {
     const slots = [],
       contractSlots = new Map(),
       locSlots = new Map();
-    let eligible = m.acts.filter(
-      (a) =>
-        remaining.has(a.activity_id) &&
-        a.start <= w &&
-        (!a.predecessor_activity_id ||
-          (done.has(a.predecessor_activity_id) && done.get(a.predecessor_activity_id) < w)),
-    );
+    let eligible = m.acts.filter((activity) => {
+      const nextPlannedWeek = baselineAccess.get(activity.activity_id)?.[
+        placedCount.get(activity.activity_id) || 0
+      ]?.week;
+      return (
+        remaining.has(activity.activity_id) &&
+        activity.start <= w &&
+        (!baseline || !replan.preserveFuture || !nextPlannedWeek || w >= nextPlannedWeek) &&
+        (!activity.predecessor_activity_id ||
+          (done.has(activity.predecessor_activity_id) &&
+            done.get(activity.predecessor_activity_id) < w))
+      );
+    });
     const hash = (a) => {
       let h = seed * 997;
       for (const c of a.activity_id) h = (h * 31 + c.charCodeAt(0)) >>> 0;
@@ -347,7 +397,8 @@ function run(m, scenario, seed, windows = {}, allowECLO = false, strictCapacity 
             n = current.size + (current.has(s) ? 0 : 1),
             cap = m.capacity(loc, w);
           if (
-            ((scenario === "A" || strictCapacity) && n > cap) ||
+            ((scenario === "A" || strictCapacity || (m.hardDisruption && m.isDisrupted(loc, w))) &&
+              n > cap) ||
             (scenario === "C" && n > cap + 1)
           ) {
             invalid = true;
@@ -358,9 +409,14 @@ function run(m, scenario, seed, windows = {}, allowECLO = false, strictCapacity 
         }
         if (invalid) continue;
         const sharing = peers.filter((b) => intersection(a.core, b.core)).length;
+        const plannedGroup = baselineGroup.get(`${a.activity_id}|${w}`);
         candidates.push({
           s,
-          score: excess * EXTRA_ACCESS_PENALTY - sharing * 0.2 + (s === slots.length ? 0.01 : 0),
+          score:
+            excess * EXTRA_ACCESS_PENALTY -
+            sharing * 0.2 +
+            (s === slots.length ? 0.01 : 0) +
+            (plannedGroup && plannedGroup !== `n${s + 1}` ? 4 : 0),
         });
       }
       if (!candidates.length) {
@@ -381,7 +437,7 @@ function run(m, scenario, seed, windows = {}, allowECLO = false, strictCapacity 
       const night = [...used.keys()].indexOf(s) + 1;
       access.push({
         activity_id: a.activity_id,
-        access_seq: access.filter((x) => x.activity_id === a.activity_id).length + 1,
+        access_seq: (placedCount.get(a.activity_id) || 0) + 1,
         week: w,
         eclo,
         access_night: night,
@@ -396,6 +452,7 @@ function run(m, scenario, seed, windows = {}, allowECLO = false, strictCapacity 
           co_share_group: "n" + (s + 1),
         });
       }
+      placedCount.set(a.activity_id, (placedCount.get(a.activity_id) || 0) + 1);
       const left = rem - (eclo ? EXTENDED_ACCESS_UNITS : STANDARD_ACCESS_UNITS);
       if (left <= 1e-9) {
         remaining.delete(a.activity_id);
@@ -525,7 +582,12 @@ export function validate(m, r) {
       cap = m.capacity(loc, w),
       over = Math.max(0, n - cap);
     excess += over;
-    if ((r.scenario === "A" && over > 0) || (r.scenario === "C" && over > 1)) add("capacity", k);
+    if (
+      (r.scenario === "A" && over > 0) ||
+      (r.scenario === "C" && over > 1) ||
+      (m.hardDisruption && m.isDisrupted(loc, w) && over > 0)
+    )
+      add("capacity", k);
     if (n >= cap) hotspots.push({ week: +w, location: loc, used: n, capacity: cap, excess: over });
   }
   const eclo = r.access.filter((x) => x.eclo).length;
@@ -602,9 +664,19 @@ export function solve(data, scenario, options = {}) {
     if (!best || cost < best.cost) best = { ...r, cost };
   };
   const attempts = options.attempts ?? 12;
+  const replan = {
+    lockedBaseline: options.lockedBaseline,
+    freezeThroughWeek: options.freezeThroughWeek,
+    preserveFuture: options.preserveFuture,
+  };
   for (let s = 0; s < attempts; s++) {
-    consider(run(m, scenario, s, {}, scenario === "B"));
-    if (scenario !== "A") consider(run(m, scenario, s, {}, scenario === "B", true));
+    consider(
+      run(m, scenario, s, options.lockedBaseline?.windows || {}, scenario === "B", false, replan),
+    );
+    if (scenario !== "A")
+      consider(
+        run(m, scenario, s, options.lockedBaseline?.windows || {}, scenario === "B", true, replan),
+      );
   }
   if (scenario === "C" && best.report.objective_score > 0) {
     const lines = Object.keys(m.routes);
@@ -617,11 +689,14 @@ export function solve(data, scenario, options = {}) {
     ];
     for (const w of candidates)
       for (let s = 0; s < Math.min(6, attempts); s++)
-        consider(run(m, scenario, s, Object.fromEntries(lines.map((l) => [l, w])), true));
+        consider(
+          run(m, scenario, s, Object.fromEntries(lines.map((l) => [l, w])), true, false, replan),
+        );
     if (lines.length === 2)
       for (const x of candidates)
         for (const y of candidates)
-          if (x !== y) consider(run(m, scenario, 1, { [lines[0]]: x, [lines[1]]: y }, true));
+          if (x !== y)
+            consider(run(m, scenario, 1, { [lines[0]]: x, [lines[1]]: y }, true, false, replan));
   }
   return {
     ...best,
