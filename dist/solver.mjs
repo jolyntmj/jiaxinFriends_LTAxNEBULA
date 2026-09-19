@@ -1,4 +1,4 @@
-// TrackPlan: deterministic multi-start serial schedule generation, no external dependencies.
+// TrackPlanner: deterministic multi-start serial schedule generation, no external dependencies.
 import { csv } from "./csv.mjs";
 import {
   accessUnits,
@@ -635,7 +635,7 @@ export function validate(m, r) {
     contracts_overrunning: r.results.filter((x) => x.overrun_days > 0).length,
     hotspots,
     validation_source:
-      "TrackPlan implementation of published rules; official validator unavailable",
+      "TrackPlanner implementation of published rules; official validator unavailable",
     assumptions: [
       "Possession groups use consistent dispatch slots across the route; access_night remains a separate local contractor index.",
       "Buffers and Live closures are enforced between activities in the same dispatch slot.",
