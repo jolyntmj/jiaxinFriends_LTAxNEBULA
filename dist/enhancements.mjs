@@ -1,37 +1,6 @@
 import { activityAdvice } from "./planning.mjs";
 
-const $ = (id) => document.getElementById(id);
-const esc = (value) =>
-  String(value ?? "").replace(
-    /[&<>"']/g,
-    (character) =>
-      ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#39;",
-      })[character],
-  );
-
-const fmt = (value) =>
-  Number(value).toLocaleString(undefined, {
-    maximumFractionDigits: 1,
-  });
-
-const table = (headers, rows) =>
-  '<div class="scroll"><table><thead><tr>' +
-  headers.map((header) => "<th>" + header + "</th>").join("") +
-  "</tr></thead><tbody>" +
-  rows
-    .map(
-      (row) =>
-        "<tr>" +
-        row.map((cell) => "<td>" + cell + "</td>").join("") +
-        "</tr>",
-    )
-    .join("") +
-  "</tbody></table></div>";
+import { $, esc, fmt, table } from "./ui.mjs";
 
 export function createEnhancements(api) {
   let lastBrief = "";
@@ -45,9 +14,7 @@ export function createEnhancements(api) {
   };
 
   document.addEventListener("click", (event) => {
-    const button = event.target.closest(
-      "[data-hotspot],[data-switch-scenario]",
-    );
+    const button = event.target.closest("[data-hotspot],[data-switch-scenario]");
 
     if (!button) return;
 
@@ -72,31 +39,24 @@ export function createEnhancements(api) {
       return;
     }
 
-    const lateContracts = result.results.filter(
-      (item) => item.overrun_days > 0,
-    );
+    const lateContracts = result.results.filter((item) => item.overrun_days > 0);
     const safe = result.report.feasible;
     const otherResults = state.results;
 
-    const summary = safe
-      ? lateContracts.length
-        ? lateContracts
-            .map(
-              (item) =>
-                item.contract_number +
-                " " +
-                item.overrun_days +
-                " days late",
-            )
-            .join("; ") + "."
-        : "All planned contract dates met."
-      : "This candidate fails implemented checks; do not treat it as a submission-ready plan.";
+    const summary =
+      (result.inputRevision ? "What-if plan: checked against revised planning assumptions. " : "") +
+      (safe
+        ? lateContracts.length
+          ? lateContracts
+              .map((item) => item.contract_number + " " + item.overrun_days + " days late")
+              .join("; ") + "."
+          : "All planned contract dates met."
+        : "This candidate fails implemented checks; do not treat it as a submission-ready plan.");
 
     const approvals = [];
     if (result.report.eclo_nights_total) {
       approvals.push(
-        result.report.eclo_nights_total +
-          " ECLO accesses require extended-hours approval",
+        result.report.eclo_nights_total + " ECLO accesses require extended-hours approval",
       );
     }
     if (result.report.excess_access_nights_total) {
@@ -106,9 +66,7 @@ export function createEnhancements(api) {
       );
     }
     if (lateContracts.length) {
-      approvals.push(
-        "accept or renegotiate the listed completion delays",
-      );
+      approvals.push("accept or renegotiate the listed completion delays");
     }
 
     const comparisons = ["A", "B", "C"]
@@ -134,14 +92,10 @@ export function createEnhancements(api) {
     lastBrief = [
       "TrackPlan controller briefing — Scenario " + state.scenario,
       summary,
-      "Complete activities: " +
-        result.report.complete +
-        "/" +
-        result.report.total,
+      "Complete activities: " + result.report.complete + "/" + result.report.total,
       ...comparisons,
       "Decisions: " +
-        (approvals.join("; ") ||
-          "No additional access or deadline concession identified."),
+        (approvals.join("; ") || "No additional access or deadline concession identified."),
       "Scores measure different policies: B enforces deadlines; A/C may accept delay.",
       "Checks are TrackPlan checks; the official validator has not been run.",
     ].join("\n");
@@ -196,10 +150,10 @@ export function createEnhancements(api) {
         advice.ecloCanFit
           ? advice.minimumECLO
             ? "At least " +
-                advice.minimumECLO +
-                " ECLO accesses are needed in isolation within the " +
-                advice.available +
-                " available weeks."
+              advice.minimumECLO +
+              " ECLO accesses are needed in isolation within the " +
+              advice.available +
+              " available weeks."
             : "No ECLO is required by the isolated workload calculation."
           : "ECLO alone cannot fit this workload into the available weeks at one access per week.",
       ) +
@@ -219,8 +173,7 @@ export function createEnhancements(api) {
               ": " +
               esc(item.reason) +
               (item.blockers?.length
-                ? " · Candidate-slot conflicts: " +
-                  esc(item.blockers.join(", "))
+                ? " · Candidate-slot conflicts: " + esc(item.blockers.join(", "))
                 : "") +
               "</p>",
           )
@@ -239,8 +192,7 @@ export function createEnhancements(api) {
     if (!item) return;
 
     const entries = result.occupancy.filter(
-      (entry) =>
-        entry.week === item.week && entry.location_id === item.location,
+      (entry) => entry.week === item.week && entry.location_id === item.location,
     );
     const ids = [...new Set(entries.map((entry) => entry.activity_id))];
 
@@ -262,12 +214,8 @@ export function createEnhancements(api) {
       table(
         ["Activity", "Contract", "Possession group", "Type", "Work nature"],
         ids.map((id) => {
-          const activity = result.modelInfo.activities.find(
-            (candidate) => candidate.id === id,
-          );
-          const occupancy = entries.find(
-            (entry) => entry.activity_id === id,
-          );
+          const activity = result.modelInfo.activities.find((candidate) => candidate.id === id);
+          const occupancy = entries.find((entry) => entry.activity_id === id);
           return [
             esc(id),
             esc(activity.contract),
