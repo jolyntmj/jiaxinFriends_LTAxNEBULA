@@ -10,7 +10,7 @@ Use a current desktop browser and Python 3. From the project root (the folder co
 python -m http.server 8000 --directory dist
 ```
 
-Open http://localhost:8000, select **Upload dataset**, choose all eight CSV files for one planning instance, then select **Generate schedules**. Uploaded copy suffixes such as `(1)` are accepted. The scheduler runs in a Web Worker. Files remain in the browser. Results are session-only; export before refreshing.
+Open http://localhost:8000. In **Overview**, upload all eight CSV files for one planning instance, then select **Generate baseline**. Use **Replan** for a future capacity loss, **Co-sharing** for validated pairing previews, and **Results** for detailed schedules. Uploaded copy suffixes such as `(1)` are accepted. The scheduler runs in a Web Worker. Files remain in the browser. Results are session-only; export before refreshing.
 
 The browser app has no runtime dependencies or build step. Node.js 20+, npm, and Python 3.10+ are needed for development checks. From the project root:
 
@@ -32,11 +32,21 @@ For team changes, branch from the current integration branch (for example, `git 
 
 ## Interactive what-if lab
 
+The dashboard's **Replan** page has two distinct workflows. The operational replan freezes all access and occupancy records through a chosen week, imposes a location's reduced weekly capacity over a future week range as a hard disruption in all three policies, and schedules only remaining work. It tries to preserve future weeks and possession groups when feasible. The resulting impact panel shows changed activities, penalties, and local-check status for the selected scenario. Scenario B may become infeasible if a disruption makes a fixed deadline impossible. This is event-driven (run on submit), not an automatic live feed. Future approvals are not hard-locked individually, and a bounded heuristic cannot guarantee minimal churn or find every feasible plan.
+
+The **Co-sharing** page explains the current shared possession groups and tests same-week, overlapping-location pairings that currently use different groups. It rejects obvious PM, PC/PC and Live combinations, then runs every possible merge through the same local validator. A validated merge can be previewed and restored; a preview replaces only the displayed scenario, not the original baseline. The explorer caps detailed candidate checks at 80 for responsiveness, so “no merge found” is not proof that none exists. A freed slot is a distinct location-week-group count; penalty may remain unchanged. Neither workflow uses the organiser's withheld reference validator, so neither constitutes operational authorisation.
+
+The distinction is **what can move**: co-sharing keeps every activity in its scheduled week and changes only possession grouping; operational replanning freezes past weeks but may move future work after a capacity loss. Replanning may itself form legal shares while rebuilding the schedule, but the co-sharing page is a focused, pair-by-pair inspection of an existing plan. Rejected pairings are explained in plain English, including conflicts with a third activity already in the target possession.
+
+Operational-replan exports include the eight unchanged input CSVs and `experiment.json` with `capacityOverrides`, `hardDisruption: true`, and `freezeThroughWeek`. Reproducing the frozen schedule also requires the original baseline passed to `solve` as `lockedBaseline`, with `preserveFuture: true`; ordinary scenario solving with the override alone does not freeze history.
+
+The optional **Other what-if comparisons** section below operational replan retains the earlier full-rerun experiment workflow:
+
 Upload a planning dataset, then select **Generate baseline**. The lab accepts an activity's revised earliest week, a temporary weekly-capacity change at one location, or both. **Compare this change** runs an automatically suggested earlier start across A/B/C. The original inputs and baseline results stay intact.
 
 The comparison shows the original and experimental penalty for each policy, the within-policy delta, feasibility, full-workload count, score components, and affected activities (including later finishes). **Baseline**, **Experiment**, and **Reset** control what the timeline and downloads show. A candidate that fails checks is identified as infeasible and cannot be exported.
 
-Temporary capacity overrides apply inclusively from the selected start week through its end week. They change nominal capacity only; they do not create a physical safety closure. B/C retain their scenario-specific excess-capacity allowances. This is a full planning rerun, not a frozen-history operational replanner.
+Temporary capacity overrides in the original full-rerun lab apply inclusively from the selected start week through its end week. They change nominal capacity only; they do not create a physical safety closure. B/C retain their scenario-specific excess-capacity allowances. This workflow remains a full planning rerun, unlike the operational replan above.
 
 Experiment exports include revised input CSVs plus `experiment.json` and an explanation. To reproduce a weekly capacity experiment, pass `experiment.json`'s `capacityOverrides` to `solve(data, scenario, { capacityOverrides })`; the static location-supply CSV cannot encode a week-specific override. Start-date changes are encoded directly in the revised activity CSV. Experiment results are not baseline submissions for the unchanged input instance.
 

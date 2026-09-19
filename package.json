@@ -9,7 +9,7 @@
     "lint": "eslint eslint.config.mjs 'dist/**/*.mjs' 'scripts/*.mjs'",
     "check:python": "ruff check scripts && ruff format --check scripts && python3 scripts/verify.py",
     "check": "npm run format:check && npm run lint && npm test && npm run check:python",
-    "test": "node scripts/test-csv.mjs && node scripts/test-inputs.mjs && node scripts/test-planning.mjs && node scripts/test-experiments.mjs && node scripts/test-recommendations.mjs && node scripts/test-result-data.mjs"
+    "test": "node scripts/test-csv.mjs && node scripts/test-inputs.mjs && node scripts/test-planning.mjs && node scripts/test-experiments.mjs && node scripts/test-recommendations.mjs && node scripts/test-result-data.mjs && node scripts/test-operations.mjs"
   },
   "devDependencies": {
     "eslint": "10.11.0",

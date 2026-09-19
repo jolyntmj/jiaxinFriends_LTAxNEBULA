@@ -5,6 +5,8 @@ import {
   renderNetwork,
 } from "./results-views.mjs?v=plan-comparison-2";
 import { createExperimentPanel } from "./experiment-panel.mjs?v=plan-comparison-2";
+import { createOperationsPanel } from "./operations-panel.mjs";
+import { createCoSharePanel } from "./coshare-panel.mjs";
 import { $, esc, fmt, table } from "./ui.mjs";
 import { createEnhancements } from "./enhancements.mjs";
 import { FILES, parseCSV, prepare, outputFiles } from "./solver.mjs";
@@ -20,6 +22,7 @@ let suggestions = {};
 let searched = {};
 let scenario = "A";
 let view = "timeline";
+let dashboardPage = "overview";
 let busy = false;
 let worker = null;
 
@@ -49,7 +52,19 @@ function setBusy(v) {
 
   $("export").disabled = v || !results[scenario]?.report.feasible;
 
-  $("export-all").disabled = v || !["A", "B", "C"].every((s) => results[s]?.report.feasible);
+  $("export-all").disabled = v || !canExportAll();
+}
+
+function canExportAll() {
+  if (!["A", "B", "C"].every((policy) => results[policy]?.report.feasible)) return false;
+  const revisions = ["A", "B", "C"].map((policy) => results[policy].inputRevision);
+  if (revisions.every((revision) => !revision)) return true;
+  return revisions.every(
+    (revision) =>
+      revision &&
+      revision.kind !== "operational-replan" &&
+      JSON.stringify(revision) === JSON.stringify(revisions[0]),
+  );
 }
 
 function loaded(d, name) {
@@ -58,6 +73,8 @@ function loaded(d, name) {
   data = d;
   results = {};
   experimentPanel.reset();
+  operationsPanel.reset();
+  coSharePanel.reset();
   originals = {};
   suggestions = {};
   searched = {};
@@ -123,6 +140,8 @@ function generate() {
 
   results = {};
   experimentPanel.reset();
+  operationsPanel.reset();
+  coSharePanel.reset();
   originals = {};
   suggestions = {};
   searched = {};
@@ -196,9 +215,37 @@ $("run").onclick = generate;
 document.querySelectorAll("[data-scenario]").forEach((button) => {
   button.onclick = () => {
     scenario = button.dataset.scenario;
+    dashboardPage = "results";
     $("inspector").hidden = true;
     render();
   };
+});
+
+$("scenario-select").onchange = (event) => {
+  scenario = event.target.value;
+  $("inspector").hidden = true;
+  render();
+};
+
+const dashboardCopy = {
+  overview: ["Overview", "Your planning status at a glance."],
+  replan: ["Disruption replan", "Keep past weeks fixed; move future work if access is lost."],
+  coshare: ["Co-sharing", "Keep activity weeks fixed; explore sharing an access slot."],
+  results: ["Schedule results", "Inspect the selected scenario in detail."],
+};
+
+function navigate(page) {
+  dashboardPage = page;
+  render();
+  globalThis.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+document.querySelectorAll("[data-dashboard-page], [data-dashboard-go]").forEach((button) => {
+  button.onclick = () => navigate(button.dataset.dashboardPage || button.dataset.dashboardGo);
+});
+
+document.addEventListener("click", (event) => {
+  if (event.target.closest('a[href="#results-tabs"]')) navigate("results");
 });
 
 document.querySelectorAll("[data-view]").forEach((button) => {
@@ -243,9 +290,14 @@ function exportZip(all) {
         r.inputRevision.description ||
         `${r.inputRevision.activityId} planned start changed from ${r.inputRevision.previous} to ${r.inputRevision.proposed}`;
       files[prefix + "WHAT_IF_README.txt"] =
-        `What-if plan: ${description}. Results pass implemented checks against the included revised inputs and any capacity overrides, not the original instance. For weekly overrides, use experiment.json with solve(data, scenario, {capacityOverrides}); the static supply CSV alone does not encode them.`;
+        `What-if plan: ${description}. Results pass implemented checks against the included revised inputs and any capacity overrides, not the original instance. For weekly overrides, use experiment.json with solve(data, scenario, {capacityOverrides, hardDisruption}); the static supply CSV alone does not encode them. Frozen history also requires the original baseline and freezeThroughWeek.`;
       files[prefix + "experiment.json"] = JSON.stringify(
-        { description, capacityOverrides: r.inputRevision.capacityOverrides || [] },
+        {
+          description,
+          capacityOverrides: r.inputRevision.capacityOverrides || [],
+          hardDisruption: r.inputRevision.hardDisruption || false,
+          freezeThroughWeek: r.inputRevision.freezeThroughWeek ?? null,
+        },
         null,
         2,
       );
@@ -284,6 +336,21 @@ function filtered(r) {
 function render() {
   enhancements.render();
   experimentPanel.render();
+  operationsPanel.render();
+  coSharePanel.render();
+
+  $("dashboard-title").textContent = dashboardCopy[dashboardPage][0];
+  $("dashboard-description").textContent = dashboardCopy[dashboardPage][1];
+  $("scenario-select").value = scenario;
+  document.querySelectorAll("[data-dashboard-content]").forEach((section) => {
+    section.hidden = section.dataset.dashboardContent !== dashboardPage;
+  });
+  document.querySelectorAll("[data-dashboard-page]").forEach((button) => {
+    const active = button.dataset.dashboardPage === dashboardPage;
+    button.classList.toggle("active", active);
+    if (active) button.setAttribute("aria-current", "page");
+    else button.removeAttribute("aria-current");
+  });
 
   $("export-all").textContent = "Download all scenarios ↓";
 
@@ -326,14 +393,19 @@ function render() {
 
   $("export").disabled = busy || !r?.report.feasible;
 
-  $("export-all").disabled = busy || !["A", "B", "C"].every((s) => results[s]?.report.feasible);
+  $("export-all").disabled = busy || !canExportAll();
+  $("export-all").title = canExportAll()
+    ? "Download all three scenarios for one input instance"
+    : "Available when all three passing scenarios use the same inputs";
 
   $("validation-badge").textContent = r
-    ? r.inputRevision
-      ? "What-if · revised-input checks passed"
-      : r.report.feasible
-        ? "Implemented checks passed"
-        : "Review violations"
+    ? !r.report.feasible
+      ? "Review violations"
+      : r.inputRevision?.kind === "operational-replan"
+        ? "Replan · local checks passed"
+        : r.inputRevision
+          ? "What-if · revised-input checks passed"
+          : "Implemented checks passed"
     : "Awaiting schedule";
 
   $("validation-badge").className = "badge " + (r ? (r.report.feasible ? "good" : "bad") : "");
@@ -647,6 +719,29 @@ const experimentPanel = createExperimentPanel({
   state: () => ({ data, results, originals, suggestions, scenario, busy }),
   busy: setBusy,
   message,
+  show: (selected) => {
+    results = { ...selected };
+    $("inspector").hidden = true;
+    render();
+  },
+});
+
+const operationsPanel = createOperationsPanel({
+  state: () => ({ data, results, originals, scenario, busy }),
+  busy: setBusy,
+  message,
+  navigate,
+  show: (selected) => {
+    results = { ...selected };
+    $("inspector").hidden = true;
+    render();
+  },
+});
+
+const coSharePanel = createCoSharePanel({
+  state: () => ({ data, results, scenario, busy }),
+  message,
+  navigate,
   show: (selected) => {
     results = { ...selected };
     $("inspector").hidden = true;

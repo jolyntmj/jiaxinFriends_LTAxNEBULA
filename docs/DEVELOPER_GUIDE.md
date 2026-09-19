@@ -10,6 +10,7 @@ This guide describes the code contracts and the assumptions a maintainer needs b
 4. `dist/result-data.mjs` derives presentation metrics. `dist/results-views.mjs`, `dist/enhancements.mjs`, and `dist/experiment-panel.mjs` render the interface using helpers in `dist/ui.mjs`.
 5. `dist/experiment-worker.mjs` and `dist/experiments.mjs` run changed-input comparisons without modifying the baseline dataset. `dist/recommendations.mjs` validates every proposed schedule against the same rules.
 6. `dist/zip.mjs` packages browser downloads. `scripts/run.mjs` runs the same solver in Node. `scripts/verify.py` independently audits the generated CSVs; it does not import the JavaScript solver.
+7. `dist/operations-panel.mjs` submits a future capacity loss to `dist/operational-worker.mjs`; `dist/operational-replan.mjs` validates the change, freezes the baseline prefix, and compares affected activities. `dist/coshare.mjs` evaluates same-week pairing candidates, while `dist/coshare-panel.mjs` displays the evidence and previews a checked merge. `dist/app.mjs` switches the Overview, Replan, Co-sharing, and Results dashboard pages.
 
 The browser keeps inputs and results in memory. There is no network API or server-side storage. Refreshing the page loses the current session; export before refreshing.
 
@@ -41,6 +42,8 @@ Dates are ISO `YYYY-MM-DD`. Activity endpoints must be on one line and bound, an
 | `outputFiles(result)`                          | Return the three published CSV outputs, keyed by filename. Callers must not export a result whose `report.feasible` is false.                                                                                                             |
 | `runExperiment(data, change, progress?)`       | Clone revised inputs, solve all three policies, and attach the revision metadata needed to reproduce downloads.                                                                                                                           |
 | `findRecommendation(data, baseline, options?)` | Bounded local search for a validated improvement under the original input. It may return `null`; it does not guarantee a global optimum.                                                                                                  |
+| `runOperationalReplan(data, baseline, change)` | Return a selected-scenario future replan and changed-activity summary. `change` needs `location`, `from`, `to`, reduced `capacity`, and `freezeThroughWeek`; the baseline must pass local checks.                                         |
+| `exploreCoSharing(data, result, limit?)`       | List existing shared location-groups, validated group-merge candidates, and rejected pairings. Candidate schedules are checked through `evaluatePlan`.                                                                                    |
 
 The generated CSVs are `SCHEDULE_ACCESS.csv` (activity/week/access), `SCHEDULE_OCCUPANCY.csv` (core locations and possession group), and `RESULTS.csv` (contract completion and overrun). `results/{A,B,C}/validation.json` and `solution.json` are diagnostics, not official submission schemas. What-if downloads include revised inputs and `experiment.json`; a week-specific capacity override is not representable in the static supply CSV alone.
 
@@ -51,6 +54,9 @@ The generated CSVs are `SCHEDULE_ACCESS.csv` (activity/week/access), `SCHEDULE_O
 - The solver's possession group is a dispatch-slot label across the route. `access_night` is a separate contractor-local night index. Do not conflate them.
 - Core occupancy appears in the output; buffers, opposite-bound mirrors, and Live cross-line closures are checked as safety footprints, not written as core work locations.
 - The static location supply repeats beyond the input horizon. Weekly what-if overrides apply only in their inclusive `from`–`to` range.
+- Operational replanning sets `hardDisruption: true`, so a reduced capacity is a hard ceiling within its range for A/B/C; ordinary what-if capacity overrides retain policy-specific excess allowances. Frozen access and occupancy records are copied unchanged through `freezeThroughWeek`. Future placement uses baseline week/group as a preference, not a hard individual approval lock. A failed search remains visibly infeasible and cannot be exported.
+- Co-sharing exploration only considers same-week activities with overlapping core locations in different groups and caps detailed local checks. Preview replaces the displayed scenario, not the saved original. The pairing explanation is based on this implementation's conservative rules, not the organiser's reference validator.
+- `explainCoShareViolation` in `dist/coshare.mjs` translates local validator diagnostics into user-facing reasons. A merge can conflict with a third activity already in its target possession; include that activity in the explanation instead of exposing raw `week|group` identifiers. Co-sharing never changes access weeks, whereas operational replanning can reschedule future work.
 - The official organiser validator was not supplied. The local validator and independent Python audit cannot establish official or operational railway safety approval.
 
 ## Errors, security, and performance
