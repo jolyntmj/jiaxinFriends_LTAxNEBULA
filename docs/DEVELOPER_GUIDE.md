@@ -1,4 +1,4 @@
-# TrackPlan developer guide
+# TrackPlanner developer guide
 
 This guide describes the code contracts and the assumptions a maintainer needs before changing the scheduler. Start with the [README](../README.md) for setup and use. The quality process follows the applicable parts of DataCamp's [coding best-practices guide](https://www.datacamp.com/tutorial/coding-best-practices-and-guidelines): clear structure, documentation, automated checks, tests, input validation, review, and security. This is a local static browser app; authentication, encryption at rest, databases, distributed processing, and vectorization are not applicable to its current design.
 

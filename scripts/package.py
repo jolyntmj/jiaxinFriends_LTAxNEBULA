@@ -4,7 +4,7 @@ from pathlib import Path
 from zipfile import ZIP_DEFLATED, ZipFile
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-ARCHIVE_PATH = PROJECT_ROOT / "dist" / "TrackPlan_Source.zip"
+ARCHIVE_PATH = PROJECT_ROOT / "dist" / "TrackPlanner_Source.zip"
 SOURCE_DIRECTORIES = (".github", "dist", "scripts", "docs", "results")
 ROOT_FILES = (
     ".editorconfig",
