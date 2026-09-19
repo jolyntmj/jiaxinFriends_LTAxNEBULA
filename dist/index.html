@@ -1,26 +1,23 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
 
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <meta
       name="description"
       content="Compare railway access schedules, inspect safety checks and export scenario results."
-    >
+    />
 
     <title>TrackPlan — Railway Access Planning</title>
 
     <link
       rel="icon"
       href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230e2338'/%3E%3Cpath d='M10 5v22M22 5v22M10 10h12M10 16h12M10 22h12' stroke='%2351dbb5' stroke-width='3'/%3E%3C/svg%3E"
-    >
+    />
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=plan-comparison-2" />
   </head>
 
   <body>
@@ -31,92 +28,69 @@
         <small>ACCESS CONTROL</small>
       </a>
 
-      <span class="header-note">
-        Line Alpha
-        <i></i>
-        Line Beta
-      </span>
-
-      <span class="badge">
-        PS1 · Planning workspace
-      </span>
+      <div class="header-note" aria-label="Network lines">
+        <span class="line-key alpha"><i aria-hidden="true"></i>Line Alpha</span>
+        <span class="line-key beta"><i aria-hidden="true"></i>Line Beta</span>
+      </div>
     </header>
 
     <main>
       <div class="page-title">
-        <div>
-          <p class="eyebrow">
-            RAILWAY TRACK ACCESS OPTIMISATION
-          </p>
+        <h1>Planning workspace</h1>
 
-          <h1>Make every access night count.</h1>
-
-          <p class="muted">
-            Plan the workload. Compare the trade-offs.
-            Inspect every possession.
-          </p>
-        </div>
-
-        <button
-          id="export-all"
-          class="primary"
-          disabled
-        >
-          Download all scenarios ↓
-        </button>
+        <button id="export-all" class="primary" disabled>Download all scenarios ↓</button>
       </div>
+
+      <nav class="workspace-shortcuts" aria-label="Workspace sections">
+        <a href="#experiment-lab">Plan comparison</a><a href="#scenario-scores">Scenario scores</a
+        ><a href="#results-tabs">Explore results ↓</a>
+      </nav>
 
       <section class="setup">
         <div>
-          <h2>Planning instance</h2>
+          <h2>Planning data</h2>
 
-          <p id="instance-status">
-            Upload all 8 CSV files that make up one planning instance.
-          </p>
+          <p id="instance-status">Upload a dataset to begin.</p>
         </div>
 
         <div class="actions">
           <label class="upload">
             Upload dataset
 
-            <input
-              id="files"
-              type="file"
-              accept=".csv"
-              multiple
-            >
+            <input id="files" type="file" accept=".csv" multiple />
           </label>
 
-          <button
-            id="run"
-            class="primary"
-            disabled
-          >
-            Generate schedules →
-          </button>
+          <button id="run" class="primary" disabled>Generate baseline →</button>
         </div>
-
-        <p class="muted">
-          Select all 8 required CSV files together.
-        </p>
       </section>
 
-      <div
-        id="message"
-        role="status"
-        aria-live="polite"
-      >
-        Upload the 8 CSV files for one planning instance to begin.
+      <div id="message" role="status" aria-live="polite">
+        Load your data, generate a baseline, then explore changes.
       </div>
 
-      <section
-        class="scenario-grid"
-        aria-label="Scenario comparison"
-      >
-        <button
-          class="scenario selected"
-          data-scenario="A"
-        >
+      <section class="workflow" aria-label="Planning workflow">
+        <div>
+          <span>01</span>
+          <p>
+            <b>Build a baseline</b><small>Schedule the full workload under three policies.</small>
+          </p>
+        </div>
+        <div>
+          <span>02</span>
+          <p>
+            <b>Test a change</b><small>Explore an earlier start or a capacity disruption.</small>
+          </p>
+        </div>
+        <div>
+          <span>03</span>
+          <p>
+            <b>Explain the impact</b><small>Compare penalties, checks and displaced work.</small>
+          </p>
+        </div>
+      </section>
+      <section id="experiment-lab" class="experiment-lab" aria-label="Plan comparison"></section>
+      <section id="scenario-scores" class="scenario-grid" aria-label="Scenario comparison">
+        <button class="scenario selected" data-scenario="A">
           <span>
             SCENARIO A
             <b>Strict supply</b>
@@ -124,19 +98,12 @@
 
           <strong id="score-A">—</strong>
 
-          <small>
-            No extra access · no extended nights
-          </small>
+          <small> No extra access · no extended nights </small>
 
-          <div id="meta-A">
-            Generate schedules to compare
-          </div>
+          <div id="meta-A">Generate schedules to compare</div>
         </button>
 
-        <button
-          class="scenario"
-          data-scenario="B"
-        >
+        <button class="scenario" data-scenario="B">
           <span>
             SCENARIO B
             <b>Strict schedule</b>
@@ -144,19 +111,12 @@
 
           <strong id="score-B">—</strong>
 
-          <small>
-            Meet dates · minimise added access cost
-          </small>
+          <small> Meet dates · minimise added access cost </small>
 
-          <div id="meta-B">
-            Generate schedules to compare
-          </div>
+          <div id="meta-B">Generate schedules to compare</div>
         </button>
 
-        <button
-          class="scenario"
-          data-scenario="C"
-        >
+        <button class="scenario" data-scenario="C">
           <span>
             SCENARIO C
             <b>Balanced</b>
@@ -164,42 +124,25 @@
 
           <strong id="score-C">—</strong>
 
-          <small>
-            Limited extra access · trade off delay
-          </small>
+          <small> Limited extra access · trade off delay </small>
 
-          <div id="meta-C">
-            Generate schedules to compare
-          </div>
+          <div id="meta-C">Generate schedules to compare</div>
         </button>
       </section>
 
       <div class="workspace-heading">
         <div>
-          <h2 id="scenario-title">
-            Scenario A · Strict supply
-          </h2>
+          <h2 id="scenario-title">Scenario A · Strict supply</h2>
 
-          <p
-            class="muted"
-            id="scenario-description"
-          >
+          <p class="muted" id="scenario-description">
             Supply stays fixed. Completion dates absorb congestion.
           </p>
         </div>
 
-        <span
-          class="badge"
-          id="validation-badge"
-        >
-          Awaiting schedule
-        </span>
+        <span class="badge" id="validation-badge"> Awaiting schedule </span>
       </div>
 
-      <section
-        class="metrics"
-        id="metrics"
-      >
+      <section class="metrics" id="metrics">
         <article>
           <span>Workload delivered</span>
           <strong>—</strong>
@@ -224,61 +167,34 @@
       <section class="briefing">
         <div class="inspector-top">
           <div>
-            <p class="eyebrow">
-              CONTROLLER BRIEFING
-            </p>
+            <p class="eyebrow">CONTROLLER BRIEFING</p>
 
             <h2>Delivery risks & decisions</h2>
           </div>
 
-          <button
-            id="download-brief"
-            disabled
-          >
-            Download briefing ↓
-          </button>
+          <button id="download-brief" disabled>Download briefing ↓</button>
         </div>
 
         <div id="brief-content"></div>
       </section>
 
-      <nav
-        class="tabs"
-        aria-label="Schedule views"
-      >
-        <button
-          data-view="timeline"
-          class="active"
-        >
-          Weekly timeline
-        </button>
+      <nav class="tabs" id="results-tabs" aria-label="Schedule views">
+        <button data-view="timeline" class="active">Weekly timeline</button>
 
-        <button data-view="contracts">
-          Contract delivery
-        </button>
+        <button data-view="contracts">Contract delivery</button>
 
-        <button data-view="capacity">
-          Capacity & checks
-        </button>
+        <button data-view="capacity">Capacity & checks</button>
 
-        <button data-view="network">
-          Network
-        </button>
+        <button data-view="network">Network</button>
       </nav>
 
       <section class="work-panel">
         <div class="toolbar">
           <div>
-            <h2 id="view-title">
-              Activity access plan
-            </h2>
+            <h2 id="view-title">Activity access plan</h2>
 
-            <p
-              class="muted"
-              id="view-help"
-            >
-              Each coloured cell is a scheduled access.
-              Click an activity to inspect it.
+            <p class="muted" id="view-help">
+              Each coloured cell is a scheduled access. Click an activity to inspect it.
             </p>
           </div>
 
@@ -287,9 +203,7 @@
               Line
 
               <select id="line">
-                <option value="">
-                  All lines
-                </option>
+                <option value="">All lines</option>
 
                 <option>ALP</option>
                 <option>BET</option>
@@ -303,111 +217,35 @@
                 id="search"
                 placeholder="Activity or contract"
                 aria-label="Find activity or contract"
-              >
+              />
             </label>
 
-            <button
-              id="export"
-              disabled
-            >
-              Export selected scenario ↓
-            </button>
+            <button id="export" disabled>Export selected scenario ↓</button>
           </div>
         </div>
 
         <div id="view">
           <div class="empty">
-            <span>
-              01 / LOAD THE DEMAND BOOK
-            </span>
+            <span> 01 / LOAD THE DEMAND BOOK </span>
 
-            <h3>
-              Your planning timeline starts here.
-            </h3>
+            <h3>Your planning timeline starts here.</h3>
 
-            <p>
-              Load the supplied dataset, then generate
-              schedules for A, B and C.
-            </p>
+            <p>Load the supplied dataset, then generate schedules for A, B and C.</p>
           </div>
         </div>
       </section>
 
-      <section
-        id="inspector"
-        class="inspector"
-        hidden
-      ></section>
-
-      <section class="notes">
-        <details>
-          <summary>
-            How the schedule is calculated
-          </summary>
-
-          <p>
-            A deterministic heuristic tries several activity orderings,
-            packs compatible co-workers into shared possessions and compares
-            the published penalty scores. Every activity receives at most
-            one access per week. Extended nights (ECLO) deliver 1.5 work
-            units; standard nights deliver 1.
-          </p>
-
-          <p>
-            Lower scores are better. A scores priority-weighted delay;
-            B scores 7 × extra location-week access slots + 5 × ECLO nights;
-            C combines both. This is a heuristic, not a guarantee of the
-            globally best schedule.
-          </p>
-        </details>
-
-        <details>
-          <summary>
-            Validation scope and planning assumptions
-          </summary>
-
-          <p>
-            Checks cover workload, start weeks, predecessor order,
-            possession mixes, route spans, buffers, Live closures,
-            weekly limits, workfronts, capacity and ECLO windows.
-            The organiser’s reference validator was not supplied.
-            A passed check here is not official validation or approval
-            for railway operations.
-          </p>
-
-          <p>
-            Possession group labels are consistent dispatch slots across
-            a route; contractor access-night indices are separate local
-            accounting values. Buffer conflicts are checked within each
-            dispatch slot. Co-sharing is limited to overlapping non-Live
-            spans with legal mixes. Supply repeats weekly, including beyond
-            the nominal horizon. All results must be checked against the
-            organiser’s validator before submission.
-          </p>
-        </details>
-      </section>
+      <section id="inspector" class="inspector" hidden></section>
 
       <footer>
         <span>
           TrackPlan / Railway access planning ·
 
-          <a
-            href="TrackPlan_Source.zip"
-            download
-          >
-            Download project source
-          </a>
-        </span>
-
-        <span>
-          Files are processed on your device · No upload to a server
+          <a href="TrackPlan_Source.zip" download> Download project source </a>
         </span>
       </footer>
     </main>
 
-    <script
-      type="module"
-      src="app.mjs"
-    ></script>
+    <script type="module" src="app.mjs?v=plan-comparison-2"></script>
   </body>
 </html>

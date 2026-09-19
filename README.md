@@ -4,13 +4,57 @@ TrackPlan is a browser-based railway track access scheduler for the supplied dua
 
 ## Run
 
-Use a current desktop browser. From the source directory:
+Use a current desktop browser and Python 3. From the project root (the folder containing this README):
 
 ```sh
 python -m http.server 8000 --directory dist
 ```
 
 Open http://localhost:8000, select **Upload dataset**, choose all eight CSV files for one planning instance, then select **Generate schedules**. Uploaded copy suffixes such as `(1)` are accepted. The scheduler runs in a Web Worker. Files remain in the browser. Results are session-only; export before refreshing.
+
+The browser app has no runtime dependencies or build step. Node.js 20+, npm, and Python 3.10+ are needed for development checks. From the project root:
+
+```sh
+npm ci
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements-dev.txt
+npm run check
+```
+
+`npm run check` runs Prettier, ESLint, the JavaScript regression tests, Ruff, and the independent Python audit. Use `npm run format` for JavaScript/HTML/CSS/README and `npm run format:python` for Python. All npm and Python packages are development tools only; do not deploy `node_modules/` or `.venv/`.
+
+For architecture, input/output schemas, public code contracts, and safety assumptions, see the [developer guide](docs/DEVELOPER_GUIDE.md). For branch and review practices, see [contributing](docs/CONTRIBUTING.md).
+
+The expected inputs are the eight named CSV files `01_LINES.csv` through `08_ACTIVITY_DETAILS.csv`, matching the columns in `dist/example.json`. Keep all eight from the same planning instance. The app rejects missing/empty datasets, duplicate input names, malformed CSV rows, and invalid scheduling values with an error message. `dist/example.json` is a reference instance, not an additional upload.
+
+For team changes, branch from the current integration branch (for example, `git switch -c codex/my-change`), make the change, run `npm test` and `npm run format:check`, then open a merge request for review. Avoid direct edits to `main`. Generated results and the source ZIP should be refreshed intentionally, not included automatically with unrelated code changes.
+
+## Interactive what-if lab
+
+Upload a planning dataset, then select **Generate baseline**. The lab accepts an activity's revised earliest week, a temporary weekly-capacity change at one location, or both. **Compare this change** runs an automatically suggested earlier start across A/B/C. The original inputs and baseline results stay intact.
+
+The comparison shows the original and experimental penalty for each policy, the within-policy delta, feasibility, full-workload count, score components, and affected activities (including later finishes). **Baseline**, **Experiment**, and **Reset** control what the timeline and downloads show. A candidate that fails checks is identified as infeasible and cannot be exported.
+
+Temporary capacity overrides apply inclusively from the selected start week through its end week. They change nominal capacity only; they do not create a physical safety closure. B/C retain their scenario-specific excess-capacity allowances. This is a full planning rerun, not a frozen-history operational replanner.
+
+Experiment exports include revised input CSVs plus `experiment.json` and an explanation. To reproduce a weekly capacity experiment, pass `experiment.json`'s `capacityOverrides` to `solve(data, scenario, { capacityOverrides })`; the static location-supply CSV cannot encode a week-specific override. Start-date changes are encoded directly in the revised activity CSV. Experiment results are not baseline submissions for the unchanged input instance.
+
+The interface uses dataset-neutral upload wording; the underlying railway schema and required-input validation remain enforced. Header line colours are distinct, and problem-statement labels and promotional headline text have been removed.
+
+Additional checks: `node scripts/test-experiments.mjs` tests start changes, temporary capacity boundaries, unchanged baselines, and independent revalidation of the experiment schedules.
+
+## Optional score recommendations
+
+After generating schedules, suggested changes appear inside the what-if lab. Compare a suggestion or enter a custom change in the same workspace. The Original baseline / Experiment switch controls the timeline and exports, while the comparison retains both scores. Reset experiment returns to the original plans. Select Original baseline before downloading the original schedules.
+
+The bounded local search tests earlier accesses and ECLO changes against the unchanged dataset. If it finds no improvement, a separate what-if search tests bringing selected planned starts forward by up to three weeks. These proposals explicitly require a changed input date. They are validated against revised inputs, not valid submissions against the original dataset. Their downloads include all eight revised CSV inputs and a WHAT_IF_README.txt explanation. Changed activities and activities finishing later are listed before preview.
+
+For the bundled instance, moving A036's planned start from 2027-05-31 to 2027-05-17 produces A/C penalties of 7 (original 25.2) and B of 10 (original 30). These are conditional what-if results, not improvements under the original start-date constraint. The search does not guarantee a global optimum. Regenerating or loading a new dataset resets the previews.
+
+Implementation is separated into `recommendations.mjs` (candidate evaluation and search), `experiment-panel.mjs` (unified suggestions, experiments and plan controls), and `ui.mjs` (shared rendering helpers). The worker computes suggestions without blocking the interface. Baseline solver behavior is preserved.
+
+Run regression checks with `node scripts/test-planning.mjs` and `node scripts/test-recommendations.mjs`.
 
 ## Reproduce the result files
 
@@ -26,10 +70,10 @@ No package installation is required. `run.mjs` writes three CSVs plus diagnostic
 ## Public dataset results
 
 | Scenario | Activities complete | Contract-overrun days | Extra location-week access slots | ECLO access records | Penalty |
-|---|---:|---:|---:|---:|---:|
-| A | 54/54 | 21 | 0 | 0 | 25.2 |
-| B | 54/54 | 0 | 0 | 6 | 30.0 |
-| C | 54/54 | 21 | 0 | 0 | 25.2 |
+| -------- | ------------------: | --------------------: | -------------------------------: | ------------------: | ------: |
+| A        |               54/54 |                    21 |                                0 |                   0 |    25.2 |
+| B        |               54/54 |                     0 |                                0 |                   6 |    30.0 |
+| C        |               54/54 |                    21 |                                0 |                   0 |    25.2 |
 
 All three pass TrackPlan's implemented constraints and the independent CSV audit. Results have not been tested with the withheld/reference validator. The supplied sample schedule was not used as the solver's answer.
 
@@ -55,8 +99,13 @@ The reference validator was not supplied. Its exact treatment of possession grou
 
 ## Files
 
-- `dist/`: complete static app, shared solver, example input and ZIP exporter.
+- `dist/index.html`, `dist/style.css`, `dist/app.mjs`: browser entry point and interface.
+- `dist/solver.mjs`, `dist/csv.mjs`, `dist/rules.mjs`: scheduling, validation, CSV parsing and shared scoring rules.
+- `dist/worker.mjs`, `dist/experiment-worker.mjs`: background scheduling and what-if runs.
+- `dist/experiment-panel.mjs`, `dist/experiments.mjs`, `dist/recommendations.mjs`: comparison UI, experiment model and suggestions.
+- `dist/results-views.mjs`, `dist/result-data.mjs`, `dist/ui.mjs`: results rendering and shared presentation helpers.
 - `scripts/run.mjs`: reproducible batch runner.
+- `scripts/test-*.mjs`: regression tests; run all with `npm test`.
 - `scripts/verify.py`: independent output audit.
 - `results/`: computed public-instance schedules and diagnostics.
 - `docs/`: solution write-up, video script and submission checklist.
@@ -68,3 +117,16 @@ The source is ready to upload to a GitLab project; no GitLab repository has been
 ## Decision support
 
 The capacity table has clickable locations revealing possession groups and activities. Activity details explain timing, workload, predecessor constraints and ECLO implications. The controller briefing summarises each selected scenario and its approval-dependent decisions and can be downloaded as text.
+
+## Reading the results
+
+The results tabs retain the detailed schedule and add contextual explanations:
+
+- Weekly timeline: calendar dates, work units per access, target markers, delivery/workload status, late-first ordering, an attention filter and a jump-to-delay control.
+- Contract delivery: expandable contracts with target and finish dates, completion-driving activities, individual workload delivery and delay-score contributions.
+- Capacity and checks: score components, used versus available slots, full/extra/over-limit labels, all-used-location filtering, and plain-language descriptions of every reported check.
+- Network: selectable weeks, station work and external safety-footprint counts, station selection, and platform/tunnel detail with activity inspection.
+
+The former standalone calculation and validation-assumption panels have been removed. View rendering is isolated in `results-views.mjs`; derived presentation metrics are in `result-data.mjs`. Run `node scripts/test-result-data.mjs` to reconcile those metrics with baseline and experiment reports.
+
+The what-if lab is now the single place for automatic suggestions and custom experiments. Its Original baseline / Experiment switch controls the results and downloads; Reset experiment restores all original plans. Workspace links jump to the lab, scenario scores, or results tabs. The duplicate suggestion panel has been removed.
